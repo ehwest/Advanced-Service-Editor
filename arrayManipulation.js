@@ -58,7 +58,7 @@ function storeArray (arrayType, i, id, text, lX, lY, wide, direction, height) {
 	if (arrayType == "nodeArr"){
 		var nodeHeight = $('.drag-1').height(); //DOES NOT WORK
 		var nodeHeight = 36; //FIXES THE PROBLEM, DOES NOT ALLOW RESIZE
-		var nodeHeightCorrected = nodeHeight-10;
+		nodeHeightCorrected = nodeHeight+16;
 		
 		var gridHeight = document.getElementById('grid').clientHeight;
 		var gridHeightCorrected = gridHeight - 90;
@@ -66,7 +66,7 @@ function storeArray (arrayType, i, id, text, lX, lY, wide, direction, height) {
 					'id=' + id + ' data_x="' +lX+ '" data_y="' +lY+ '"' +
 					'style="transform: translate(' + lX + 'px, ' + lY + 'px); -webkit-transform: translate(' + lX + 'px, ' + lY + 'px);">' +
 						text +
-					'<div class="verticalLine" style="margin-top:'+nodeHeightCorrected+'px;height:'+gridHeightCorrected+'px;"></div>'+
+					'<div class="verticalLine" style="top:'+nodeHeightCorrected+'px;height:'+gridHeightCorrected+'px;"></div>'+
 			      '</div>';
 		nodeArr.push([tag,id,text,parseInt(lX),parseInt(lY),wide,parseInt(lX)+parseInt(wide),parseInt(lY)]);
 		var dropOffLocation = document.getElementById("nodeChildrenDroppedOffHere");
@@ -105,7 +105,7 @@ function storeArray (arrayType, i, id, text, lX, lY, wide, direction, height) {
 			'style="margin-left: 27px; transform: translate('+ lX +'px, '+lY+'px); -webkit-transform: translate('+ lX +'px, '+lY+'px);width: 0px;" '+
 			'id="'+id+'" data_x="'+lX+'" data_y="'+lY+'" direction="self">'+
 				'<div style="display:inline; width:100%"><img src="selfArrow.png" style="cursor:e-resize;">'+
-				'<div style="width:75px;font-size:12px;margin-left:3px;text-align:left;">' + text + '</div></div>'+
+				'<div style="width:75px;font-size:12px;margin-left:3px;text-align:left;display:inline;">' + text + '</div></div>'+
 		  '</div>'
 		}
 					

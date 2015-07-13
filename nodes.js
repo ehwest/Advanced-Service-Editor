@@ -55,7 +55,12 @@ interact('.nodeDraggable')
 			}
 			lastSelected = event.target.id;	
 		}
-		
+		else if (event.button == 2 && selection.length <= 1){
+			clearSelection();
+			selection.push(event.target.id);
+			$("#"+event.target.id).addClass('selected');
+			lastSelected = event.target.id;
+		}
 		//Else clear
 		else {
 			if (event.button == 0){
@@ -583,10 +588,10 @@ function renameNode (uuid) {
 				pushToDict(innerText, "node");
 				storeText(nodeArr,uuid,innerText);
 				var nodeHeight = $('.drag-1').height();
-				nodeHeightCorrected = nodeHeight-10;
+				nodeHeightCorrected = nodeHeight+16;
 				var gridHeight = document.getElementById('grid').clientHeight;
 				gridHeightCorrected = gridHeight - 90;
-				document.getElementById(uuid).innerHTML = innerText+'<div class="verticalLine" style = "margin-top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+				document.getElementById(uuid).innerHTML = innerText+'<div class="verticalLine" style = "top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
 				clearSelection();
 				/////////////////////////
 		 	} 		

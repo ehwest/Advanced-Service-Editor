@@ -500,7 +500,7 @@ p.draggables {
 
 .verticalLine {
     border-left: 3px solid #000000;
-    position: relative;
+    position: absolute;
     margin-left:50px;
     z-index:-1;
     height: 613px;

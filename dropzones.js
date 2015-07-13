@@ -72,11 +72,11 @@ interact('.nodeDropzone').dropzone({
 				
 		}
 		function createNode(text) {
-			var nodeHeight = $('.drag-1').height();
-			nodeHeightCorrected = nodeHeight-10;
+			var nodeHeight = parseInt($('.drag-1').height());
+			nodeHeightCorrected = nodeHeight+16;
 			var gridHeight = document.getElementById('grid').clientHeight;
 			gridHeightCorrected = gridHeight - 90;
-			event.relatedTarget.innerHTML = text+'<div class="verticalLine" style = "margin-top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+			event.relatedTarget.innerHTML = text+'<div class="verticalLine" style = "top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
 			
 
 		}
