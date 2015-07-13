@@ -78,7 +78,11 @@ interact('.arrowPlaced')
 	if (uuid == ""){ //accounts for double tapping .triangle
 		var uuid = event.target.parentNode.id;
 	}
+	if (uuid == ""){ //accounts for double tapping .triangle
+		var uuid = event.target.parentNode.parentNode.id;
+	}
 	renameArrow(uuid);
+	
 });
 
 function renameArrow (uuid) {
