@@ -55,11 +55,14 @@ interact('.nodeDraggable')
 			}
 			lastSelected = event.target.id;	
 		}
-		else if (event.button == 2 && selection.length <= 1){
-			clearSelection();
-			selection.push(event.target.id);
-			$("#"+event.target.id).addClass('selected');
-			lastSelected = event.target.id;
+		else if (event.button == 2){
+			if(selection.indexOf(event.target.id) == -1){
+				clearSelection();
+				selection.push(event.target.id);
+				$("#"+event.target.id).addClass('selected');
+				lastSelected = event.target.id;
+			}
+
 		}
 		//Else clear
 		else {
