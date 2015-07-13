@@ -43,12 +43,27 @@ $(function(){
     })
 });
 
+
 //NODE CONTEXT MENU
 $(function(){
-    $.contextMenu({
+
+	 /**************************************************
+     * Custom Command Handler
+     **************************************************/
+    $.contextMenu.types.label = function(item, opt, root) {
+        // this === item.$node
+
+        $('<span>Shift Arrows</span>'
+            + '<button id="shiftDownButton" style="margin-left:5px" onClick="shiftDown(1);">+</button>'
+            + '<button id="shiftUpButton" style="margin-right:10px" onClick="shiftDown(-1);">-</button>')
+            .appendTo(this);
+            
+     
+    };	
+	$.contextMenu({
         selector: '.placed', 
         callback: function(key, options) {
-            var m = "clicked: " + key;
+            //var m = "clicked: " + key;
             window.console && console.log(m) || alert(m); 
         },
         animation: {
@@ -345,13 +360,32 @@ $(function(){
             	}
             },
             "sep2": "---------",
-            "shift": {
+            
+            "shift": {type: "label", customName: "Label", 
+            	callback: function(){
+            		adjustHeight();
+            		return false 
+            	},
+            	disabled: function(key, opt) {
+            		//Only allow editing if one node is selected
+            		getStartArrowDependants(this[0].id);
+            		getEndArrowDependants(this[0].id);
+            		return startArrowDependants.length==0 && endArrowDependants.length==0;
+            	}
+            },
+            /*{
             	name: "Shift arrows down", 
             	icon: "export",
             	callback: function(key, options) { 
             		shiftDown(1);
+            	},
+            	disabled: function(key, opt) {
+            		//Only allow editing if one node is selected
+            		getStartArrowDependants(this[0].id);
+            		getEndArrowDependants(this[0].id)
+            		return startArrowDependants.length==0 && endArrowDependants.length==0;
             	}
-            },
+            },*/
             "sep3": "---------",
             "quit": {
             	name: "Quit", 
@@ -367,6 +401,8 @@ $(function(){
 
 
 function shiftDown (dy) {
+	newHeight = $("#contextMenuID").height()-1;
+	$("#contextMenuID").height(newHeight);
 	var allDependants = [];
 	for (var i = 0; i<selection.length; i++){
 		getStartArrowDependants(selection[i]);
@@ -378,6 +414,17 @@ function shiftDown (dy) {
 		for (var b = a+1; b<allDependants.length;b++){
 			if(allDependants[a]===allDependants[b])
 				allDependants.splice(b--,1);
+		}
+	}
+	if (dy<0) {
+		var minY = document.getElementById(allDependants[0]).getAttribute('data_y');
+		for (var i=1; i<allDependants.length; i++){
+			if (document.getElementById(allDependants[i]).getAttribute('data_y')<minY){
+				minY = document.getElementById(allDependants[i]).getAttribute('data_y');
+			}
+		}
+		if (minY<=102){
+			return;
 		}
 	}
 	for (var j=0; j<allDependants.length; j++){
