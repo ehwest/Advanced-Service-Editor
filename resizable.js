@@ -118,7 +118,7 @@ function makeArrow(target){
 			target.innerHTML = '<div class="leftTriangle" style="display:inline;"></div><div class="leftArrow" style="display:inline; width:100%;">'+text+'</div>'
 		}
 		else if (target.getAttribute("direction") == "self"){
-			target.innerHTML = '<div style="display:inline; width:100%"><img src="selfArrow.png" style = "cursor:e-resize;"><div style="width:75px;font-size:12px;margin-left:3px;text-align:left;">'+text+'</div></div>'
+			target.innerHTML = '<div style="display:inline; width:100%"><img src="selfArrow.png" style = "cursor:e-resize;"><div style="width:75px;font-size:12px;margin-left:3px;text-align:left;display:inline">'+text+'</div></div>'
 		}
 	}
 	catch(err){
@@ -132,7 +132,7 @@ function makeArrow(target){
 			target.innerHTML = '<div class="leftTriangle" style="display:inline;"></div><div class="leftArrow" style="display:inline; width:100%;">'+text+'</div>'
 		}
 		else if (target.getAttribute("direction") == "self"){
-			target.innerHTML = '<div style="display:inline; width:100%"><img src="selfArrow.png" style = "cursor:e-resize;"><div style="width:75px;font-size:12px;margin-left:3px;text-align:left;">'+text+'</div></div>'
+			target.innerHTML = '<div style="display:inline; width:100%"><img src="selfArrow.png" style = "cursor:e-resize;"><div style="width:75px;font-size:12px;margin-left:3px;text-align:left;display:inline">'+text+'</div></div>'
 		}
 	}
 }
