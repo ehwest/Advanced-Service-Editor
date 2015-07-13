@@ -92,6 +92,7 @@ function saveFile(name) {
 	if (name.slice(-3) != "txt"){
 		name += ".txt";
 	}
+	filename = name;
 	downloadLink.download = name;
 	downloadLink.innerHTML="Download File";
 	downloadLink.href = window.webkitURL.createObjectURL(blob);
