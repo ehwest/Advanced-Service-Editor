@@ -345,6 +345,14 @@ $(function(){
             	}
             },
             "sep2": "---------",
+            "shift": {
+            	name: "Shift arrows down", 
+            	icon: "export",
+            	callback: function(key, options) { 
+            		shiftDown(1);
+            	}
+            },
+            "sep3": "---------",
             "quit": {
             	name: "Quit", 
             	icon: "quit"
@@ -356,6 +364,36 @@ $(function(){
         console.log('clicked', this);
     })
 });
+
+
+function shiftDown (dy) {
+	var allDependants = [];
+	for (var i = 0; i<selection.length; i++){
+		getStartArrowDependants(selection[i]);
+		getEndArrowDependants(selection[i]);
+		nodeDependants = startArrowDependants.concat(endArrowDependants);
+		allDependants = allDependants.concat(nodeDependants);
+	}
+	for (var a = 0; a<allDependants.length; a++){
+		for (var b = a+1; b<allDependants.length;b++){
+			if(allDependants[a]===allDependants[b])
+				allDependants.splice(b--,1);
+		}
+	}
+	for (var j=0; j<allDependants.length; j++){
+		x = document.getElementById(allDependants[j]).getAttribute('data_x');
+		y = document.getElementById(allDependants[j]).getAttribute('data_y');
+		y = parseInt(y) + parseInt(dy) * 42
+		
+		document.getElementById(allDependants[j]).style.webkitTransform =
+			document.getElementById(allDependants[j]).style.transform =
+				'translate(' + x + 'px, ' + y + 'px)';
+
+		document.getElementById(allDependants[j]).setAttribute('data_y',y);
+			
+		storeXY(nodeArr,allDependants[j]);
+	}
+}
 
 //ARROW CONTEXT MENU
 $(function(){
