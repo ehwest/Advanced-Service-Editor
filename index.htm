@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>AT&T ASE</title>
+    <link rel="stylesheet" type="text/css" href="menus/bs.css">
+    <link rel="stylesheet" type="text/css" href="menus/jquery-ui.css">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+	<style>
+	</style>
+	<script>
+		
+	</script>
+</head>
+
+<body>
+	<div id="titleBar">
+		<h3 class=titleBar>Flow SDE</h3>
+	</div>
+	<div id="topBreak">
+		<br class=smallBR><br class=smallBR>
+	</div>
+	<div id="sideBar">
+		<br><h1 class=sideBar>Modules</h1>
+		<br>
+		<div class="nodeDraggable drag-drop drag nodeContextMenu">
+	  		<p class=draggables> This is a Node! </p>
+		</div>
+				
+		<br><br><br><br><br>
+		
+		<div class="arrowDraggable resizable gridDropzone" style="margin-left:27px;">
+			<div class="arrow" style="display:inline;"></div><div class="triangle" style="display:inline;"></div>
+		</div>
+		
+		<br><br><br>
+		<div class="postit" id="postit" style="cursor:move;">
+			<img src="smallPostit.png" style="margin-left:25px;">
+		</div>
+		
+		
+		<br><div style="margin-bottom:3px; font-style:italic; font-size:12px; text-align:center; cursor:pointer;" onClick="openHelp();"><b>Instructions</b></div><hr />
+		<button id = "start" class="glow" onClick = "newButton();" style="margin-left:25%;margin-top:18px;margin-bottom:3px;">New!</button><br>
+		<button class="little" onClick = "addHeight();" style="display:inline;width:60px;margin-top:0px;margin-left:10%;margin-bottom:3px;margin-right:5px;">+ Height!</button>
+		<button class="little" onClick = "addWidth();" style="display:inline;width:60px;margin-top:0px;margin-bottom:3px;">+ Width!</button>
+		
+		<div id = "warning" style="font-style: italic; font-size: 12px; margin-top:12px; text-align:center; cursor:pointer" onClick = "blinkMissingArrows();"></div>
+		<div style = "position:absolute; bottom:0; width:100%;">			
+			<hr />
+			<img id="trash" class=trash src="trashCan.png" height="100" width="auto" style="cursor:pointer;margin-bottom:5px;margin-top:18px;">
+			<button id="saveButton" class="little" style = "display:inline;margin-left:12px;" onmouseover="repeater=setInterval(warning(),100);" onmouseout="clearInterval(repeater);" onClick = "saveToFile();">Save</button>
+			<button class="little" style = "display:inline;" onClick = "loadFromFile();">Load</button>
+			<button id="printButton" class="little" style = "display:inline;" onmouseover="repeater=setInterval(warning(),100);" onmouseout="clearInterval(repeater);" onClick = "printDiagram();">Print</button>
+		<br>
+		</div>
+	</div>
+
+	<div id="grid">
+		<div id="appendSpot" class="arrow_box" style="position:absolute; z-index:9998; transform: translate(260px, 22px); -webkit-transform: translate(260px, 22px); visibility:hidden;">Append here</div>			
+		<div id="nodeChildrenDroppedOffHere" style = "float:left"></div>
+			<!-- Nodes placed here -->
+		<div id="arrowChildrenDroppedOffHere" style = "float:left"></div>
+			<!-- Arrows placed here -->
+		<div id="noteChildrenDroppedOffHere" style = "float:left"></div>
+			<!-- Notes placed here -->
+		<div id="nodeZone" class="nodeDropzone" style="float:top;margin-left:10em;">
+			<br style = "line-height:40px">
+			<br style = "line-height:18px">
+			<br style = "line-height:35px">
+		</div>
+		<div id="numbers" style="position:fixed; width:auto; z-index:9006; height:auto; margin-left:10em;">
+			<!-- Numbers generated here -->
+		</div>
+		<div id="horRows" style="position:absolute; margin-left:10em; width:81%; float:right;">
+			<div id="lines" class = "arrowDropzone" style="position:relative; margin-left:6em;">
+				<!-- Rows generated here -->
+			</div>
+		</div>
+	</div>
+	
+</body>
+	<!-- Libraries -->
+    <script> 	
+    	window.filename = "Flow_SDE";
+   		window.arrowTip = 12;	
+		window.resized = false;
+		window.arrowConnections = true;
+		window.negativeWidth = false;
+		window.gridPitchx = 160;
+		window.gridPitchy = 42;
+		window.clipboard = [];
+		window.selection = [];
+    </script>
+    <script src="dependencies/interact.js"></script>
+    <script src="dependencies/jquery-2.1.4.min.js"></script>
+    <script src="dependencies/Blob.js"></script>
+    <script src="dependencies/jspdf.js"></script>
+    <script src="dependencies/base64.js"></script>
+    <script src="dependencies/sprintf.js"></script>
+    <script src="menus/jquery-ui.min.js"></script>
+	<script src="menus/bootstrap.min.js"></script>
+	<script src="menus/bootbox.js"></script>
+	<script src="menus/contextMenu.js"></script>
+    <!-- My Scripts -->
+    <script src="dragMoveListener.js"></script>
+    <script src="dragMoveListenerArrow.js"></script>
+    <script src="buttons.js"></script>
+    <script src="resizable.js"></script>
+    <script src="arrows.js"></script>
+    <script src="nodes.js"></script>
+    <script src="notes.js"></script>
+    <script src="dropzones.js"></script>
+    <script src="backend.js"></script>
+    <script src="arrayManipulation.js"></script>
+    <script src="printpdf.js"></script>
+    <script src="scroll.js"></script>
+    <script src="dictionary.js"></script>
+    <script src="customContextMenus.js"></script>
+    
+    <script>newProject();</script>
+	<script>
+	    //Allows nodes to scroll with the page and adjusts transparencies
+		$(window).scroll(function(event) {
+			scroll();
+	    });	
+	    
+	    //Shows the instructions dialog
+	    function openHelp () {
+	    	bootbox.dialog({
+	    		backdrop:true,
+	    		onEscape: function() {},
+	    		message: '<h1 style="margin-top:0px;">Flow SDE</h1>' +
+	    			'<p>This program was designed to aid in the process of creating sequence diagrams by utilizing drag-n-drop javascript ' + 
+	    			'frameworks.</p>'+
+	    			'<hr><h2>Editing: Getting Started</h2><ol style="font-size:18px;"><li>Simply drag a module from the sidebar to the main grid on the screen.</li> ' + 
+	    			'<li>Once you begin dragging, a grey dotted line will guide you to the appropriate dropzone area. The dropzone is highlighted ' +
+	    			'blue upon dragging a appropriate module inside of it.</li> ' +
+	    			'<li>You will be prompted to enter text to be displayed inside of the module. Height and width can be added using the buttons ' +
+	    			'on the left side of the screen.</li><li>To deleted a module, drag it to the trash can.</li></ol>'+
+	    			
+		    			'<h3 class="help">Nodes</h3><p class="helpIndent">Nodes are designated by blue, rounded rectangles and ' +
+		    			'can be dragged to the dropzone above the horizontal grid lines. Nodes automatically generate "lifelines" that run to the ' +
+		    			'of the page. When arrows are resized, they snap to these lifelines. A node\'s dependent arrows (those that touch its ' +
+		    			'lifelines) remain stuck to it while the node is dragged and rearranged. Dragging a node on top of another node results ' +
+		    			'in the overlapped node and all nodes to its right to be shifted over one unit to the right.</p>' +
+		    			'<h3 class="help">Arrows</h3><p class="helpIndent">Arrows can be ' +
+		    			'dragged to the main dropzone that contains many horizontal lines. Arrows can be resized and snap to nearby lifelines at ' +
+		    			'the end of resizing.</p>' +
+		    			'<h3 class="help">Notes</h3><p class="helpIndent">Notes are designated by yellow rectangles and can be ' +
+		    			'dragged to the main dropzone that contains many horizontal lines.</p>' +
+		    			
+	    			'<hr><h2>File Management</h2><p style="margin-left:12px;">There are many options to save your work and load it to either a ' +
+	    			'new workspace or current one.</p>'+
+		    			
+		    			'<h3 class="help">Saving</h3>' +
+		    			
+		    				'<h4 class="help">Save workspace</h4><p class="helpIndent">To save everything in the current workspace, click the save ' +
+		    				'button in the lower left hand corner. You will be prompted for a name in the title bar. Files are saved as text files with ' +
+		    				'JSON formatting. They are downloaded to the users downloads folder.</p>' +
+		    			
+		    				'<h4 class="help">Export node</h4><p class="helpIndent">It is also possible to export a single node and its dependent ' +
+		    				'arrows. To do so, right click on any node and click export. Enter a file name and click "Export". Exporting is useful ' +
+		    				'for saving frequently used nodes as they can be imported and appended to any project with ease.</p>' +
+		    			
+		    			'<h3 class="help">Loading</h3>' +
+		    				'<h4 class="help">Load workspace: Replace</h4><p class="helpIndent">To load an entire, previously saved workspace and replace the current one, ' +
+		    				'click the load button in the lower left hand corner. You will be prompted to choose a file and then click "Replace".</p>' +
+		    			
+		    				'<h4 class="help">Load workspace: Append</h4><p class="helpIndent">To load an entire, previously saved workspace on top of a current one, ' +
+		    				'click the load button in the lower left hand corner. You will be prompted to choose a file and then click "Append". ' +
+		    				'An append location marker will show up and you can click anywhere on the designated dropzone to change the location where the ' +
+		    				'file will be appended. After choosing a spot, click "Okay". If you choose a location that intersects with another node, ' +
+		    				'that node and the nodes to its right will be shifted one unit to the right.</p>' +
+		    			
+		    				'<h4 class="help">Import node</h4><p class="helpIndent">To import a node that has previously been exported, right click ' +
+		    				'on the node dropzone and click "import". You will be prompted to choose a file and then click "Import". ' +
+		    				'An append location marker will show up and you can click anywhere on the designated dropzone to change the location where the ' +
+		    				'file will be appended. After choosing a spot, click "Okay". If you choose a location that intersects with another node, ' +
+		    				'that node and the nodes to its right will be shifted one unit to the right.</p>' +
+			    	
+		    			'<h3 class="help">Renaming</h3>' +
+		    				'<h4 class="help">Rename workspace</h4><p class="helpIndent">To rename your workspace, double click on the title bar ' +
+		    				'and type a new title. This does not change the names of previously saved versions of the workspace.</p>' +
+		    			
+		    		'<hr><h2>Features</h2><p style="margin-left:12px;">There are many features in this program to allow for its ease of use.</p>'+
+	    				
+		    			'<h3 class="help">Arrow endpoint detection</h3><p class="help"> When an arrow on the screen lacks a left or right  ' + 
+						'endpoint, the arrow is colored (red = 0 connections, yellow = 1 connection) and <i>*Arrow missing lifeline</i> ' +
+						'appears in the sidebar. Clicking this text flashes the invalid arrows. When a successful connection has been made, ' +
+						'the arrow fades to green and then to transparent.</p>' +
+		    			'<h3 class="help">Autocomplete with technical dictionary</h3><p class="help"> When prompted to enter the inner text of a module, ' + 
+    					'the editor searches through its preloaded dictionary to offer suggestions for text. Entering a term that is not in the ' +
+    					'dictionary appends it to the dictionary for the entirity of the session.</p>' +	
+		    			'<h3 class="help">Context menus (right-clicking)</h3><p class="help">Right clicking on nodes and arrows deploys a custom context menu allowing ' + 
+	    				'you to perform many operations on modules such as cut, copy, paste, delete, rename, import and export.</p>' +	
+	    				'<h3 class="help">Multi-select (using Ctrl & Shift)</h3><p class="help">Holding the control key allows the user to select multiple' +
+	    				'nodes in any order. Holding the shift key allows the user to select multiple nodes in a row. Selecting multiple nodes allows ' + 
+	    				'you to perform an operation (such as drag, cut, copy, paste, delete, and export).</p>' +	
+	    				'<h3 class="help">Printing</h3><p class="help">Clicking "print" allows you to export the current workspace to a ' + 
+	    				'printable (saveable and email-able) pdf document. These docments are meant for presentation and cannot be ' +
+	    				'reimported into the workspace.</p>' +	
+		    			'<h3 class="help">Restore from trash</h3><p class="help">Clicking on the trash can brings up a menu that allows you ' + 
+		    			'to restore previously deleted modules and append them to the current workspace.</p>'
+	    	})
+	    }
+
+    </script>
+    
+</html>
+
+<!--
+=============================================================================================
+The MIT License (MIT)
+
+Copyright 2015 AT&T Intellectual Property. All other rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
