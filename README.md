@@ -5,6 +5,7 @@ This program was designed to aid in the process of creating sequence diagrams by
 
 
 =============================================================================================
+The MIT License (MIT)
 
 Copyright 2015 AT&T Intellectual Property. All other rights reserved.
 
