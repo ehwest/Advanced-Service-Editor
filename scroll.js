@@ -35,7 +35,7 @@ function scroll () {
 		else {
 			$( ".verticallyScrollable" ).css('opacity', '.3');
 		}
-		$(".verticalLine").css("margin-top", 78-scrollY);
+		$(".verticalLine").css("top", 122-scrollY);
 		busy = false;
 	}
 	else{
@@ -57,7 +57,7 @@ function scroll () {
 	}
 	if (scrollY == 0) {
 		$(".verticallyScrollable").css("margin-top", 0);
-		$(".verticalLine").css("margin-top", 26);
+		$(".verticalLine").css("top", 52);
 	}
 }
 
