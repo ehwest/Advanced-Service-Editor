@@ -105,14 +105,25 @@ function loadFromFile(){
 	document.getElementById("titleBar").innerHTML = '<div class="center" style="width:35%;"><p style = "cursor:pointer;display:inline;margin-right:15px;font-family:Arial Black; line-height:10px;" onclick="resetTitleBar();">X</p><input type="file" accept=".txt" name="fileToLoad" id = "fileToLoad"><button style = "display:inline;" onclick="loadFile(0);">Replace!</button><button style = "display:inline;" onclick="loadFile(1);">Append!</button><button style = "margin-left:10px;display:inline;" onclick="alert(textFromFileLoaded);">Source</button></div>';	
 }
 
-function loadFile(typeOfLoad) {
-	var file = document.getElementById("fileToLoad").files[0];
-	console.log(file);
-	var reader = new FileReader();
-	reader.onload = recievedText;
-	reader.readAsText(file);
+function loadFile(typeOfLoad,preloadedFile) {
+	if(preloadedFile==null){
+		var file = document.getElementById("fileToLoad").files[0];
+		console.log(file);
+		var reader = new FileReader();
+		reader.onload = recievedText;
+		reader.readAsText(file);
+	}
+	else {
+		reader.onload = recievedText;
+	}
+
 	function recievedText () { //Called when fully loaded
-		var textFromFileLoaded = reader.result;
+		if (preloadedFile==null) {
+			var textFromFileLoaded = reader.result;
+		}
+		else {
+			var textFromFileLoaded = preloadedFile;
+		}
 		var n = JSON.parse(textFromFileLoaded);
 		
 		var elementList = n.diagram.elements; //stores all elements
