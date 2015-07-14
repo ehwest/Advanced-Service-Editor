@@ -373,19 +373,6 @@ $(function(){
             		return startArrowDependants.length==0 && endArrowDependants.length==0;
             	}
             },
-            /*{
-            	name: "Shift arrows down", 
-            	icon: "export",
-            	callback: function(key, options) { 
-            		shiftDown(1);
-            	},
-            	disabled: function(key, opt) {
-            		//Only allow editing if one node is selected
-            		getStartArrowDependants(this[0].id);
-            		getEndArrowDependants(this[0].id)
-            		return startArrowDependants.length==0 && endArrowDependants.length==0;
-            	}
-            },*/
             "sep3": "---------",
             "quit": {
             	name: "Quit", 
