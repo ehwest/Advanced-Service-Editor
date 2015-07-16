@@ -927,7 +927,7 @@ var // currently active contextMenu trigger
                 root = opt;
             }
             // create contextMenu
-            opt.$menu = $('<ul class="context-menu-list"></ul>').addClass(opt.className || "").data({
+            opt.$menu = $('<ul id = "contextMenuID" class="context-menu-list"></ul>').addClass(opt.className || "").data({
                 'contextMenu': opt,
                 'contextMenuRoot': root
             });
@@ -1193,7 +1193,7 @@ var // currently active contextMenu trigger
                 .insertBefore(this)
                 .on('contextmenu', handle.abortevent)
                 .on('mousedown', handle.layerClick);
-            
+
             // IE6 doesn't know position:fixed;
             if (document.body.style.maxWidth === undefined) {//IE6 doesn't support maxWidth
                 $layer.css({
