@@ -134,59 +134,77 @@ interact('.nodeDraggable')
 	    	elementRect: { top: 0, left: 0, bottom: 0, right: 0 }
 	    },
 	
+	    
+	    // call this function on every dragmove event
+	    onstart: function (event){
+			if (event.button == 0 && !$("#" + event.target.id).hasClass('selected')){ //Makes anything you drag dashed
+				clearSelection();
+				selection.push(event.target.id);
+				$("#"+event.target.id).addClass('selected');
+				lastSelected = event.target.id;
+			}
+	    	getChildren(event.target.id);
+	    	for (var i = 0; i<childrenIDs.length; i++){
+				selection.push(childrenIDs[i]);
+			}
+			//Bring drag elements to the front
+			for (var i = 0; i<selection.length; i++){
+				document.getElementById(selection[i]).style.zIndex = 9997;
+				if ($("#"+selection[i]).hasClass('hasNodes')){
+					document.getElementById(selection[i]).style.zIndex = document.getElementById(selection[i]).style.zIndex - 1;
+				}
+			}
+
+			
+			//This may cause lag if there are an extremely large number of arrows
+			for (var i=0; i<arrowArr.length; i++){
+				determineLRNode(arrowArr[i][1],"arrow");
+			}
+	    },
 		// call this function on every dragmove event
 	    onmove: window.dragMoveListener,
-	    onmove: dragMoveListener,
 		// call this function on every dragend event
 		onend: function (event) {
-	
+			for (var i = 0; i<childrenIDs.length; i++){
+				selection.pop();
+			}
+			for (var i = 0; i<selection.length; i++){
+				try{
+					document.getElementById(selection[i]).style.zIndex = 9996;
+					if ($("#"+selection[i]).hasClass('hasNodes')){
+						document.getElementById(selection[i]).style.zIndex = document.getElementById(selection[i]).style.zIndex - 10;
+					}
+				}
+				catch(err) {
+					continue;
+				}
+			}
+			
+			//Shifts nodes to the right by running shiftRight on every node (first sorts the selections by x)
+			for (var k = selection.length-1; k>=0; k--){
+				for (var m = 1; m<=k; m++){
+	    			if (document.getElementById(selection[m-1]).getAttribute("data_x")>document.getElementById(selection[m]).getAttribute("data_x")) {
+	    				var swap = selection[m];
+	    				selection[m] = selection[m-1];
+	    				selection[m-1] = swap;
+	    			}		            		
+	    		}
+			}	
+			for (var i = 0; i<selection.length; i++){
+				if (isOverlapped(selection[i]) == true){
+					shiftRight(document.getElementById(selection[i]),160);
+				}
+			}
 		}
 	})
 	.on('dragstart', function (event) {
-		if (event.button == 0 && !$("#" + event.target.id).hasClass('selected')){ //Makes anything you drag dashed
-			clearSelection();
-			selection.push(event.target.id);
-			$("#"+event.target.id).addClass('selected');
-			lastSelected = event.target.id;
-		}
 		
-		//Bring drag elements to the front
-		for (var i = 0; i<selection.length; i++){
-			document.getElementById(selection[i]).style.zIndex = 9998;
-		}
 
 		
-		//This may cause lag if there are an extremely large number of arrows
-		for (var i=0; i<arrowArr.length; i++){
-			determineLRNode(arrowArr[i][1],"arrow");
-		}
+
 	})
 	.on('dragend', function (event) {
 
-		for (var i = 0; i<selection.length; i++){
-			try{
-				document.getElementById(selection[i]).style.zIndex--;
-			}
-			catch(err) {
-				continue;
-			}
-		}
-		
-		//Shifts nodes to the right by running shiftRight on every node (first sorts the selections by x)
-		for (var k = selection.length-1; k>=0; k--){
-			for (var m = 1; m<=k; m++){
-    			if (document.getElementById(selection[m-1]).getAttribute("data_x")>document.getElementById(selection[m]).getAttribute("data_x")) {
-    				var swap = selection[m];
-    				selection[m] = selection[m-1];
-    				selection[m-1] = swap;
-    			}		            		
-    		}
-		}	
-		for (var i = 0; i<selection.length; i++){
-			if (isOverlapped(selection[i]) == true){
-				shiftRight(document.getElementById(selection[i]),160);
-			}
-		}
 	})
 	.on('dragmove', function (event) {
 	
@@ -267,9 +285,8 @@ function moveSelection (dx,dy,draggedNodeID) {
 
 		moveDependants(dx,dy,selection[i]);
 		if (isOverlapped(selection[i]) == true){
-			document.getElementById(selection[i]).style.transition = "background .5s ease";		
+			document.getElementById(selection[i]).style.transition = "background .5s ease";	
 			document.getElementById(selection[i]).style.background = "rgba(255,255,0,.40)"; //yellow
-			//shiftRight(event.target);
 		 }
 		 else {
 			 document.getElementById(selection[i]).style.background = "#29e"; //remove yellow
@@ -590,11 +607,18 @@ function renameNode (uuid) {
 				var innerText = result;
 				pushToDict(innerText, "node");
 				storeText(nodeArr,uuid,innerText);
-				var nodeHeight = $('.drag-1').height();
+				var nodeHeight = $("#"+uuid).height();
 				nodeHeightCorrected = nodeHeight+16;
 				var gridHeight = document.getElementById('grid').clientHeight;
 				gridHeightCorrected = gridHeight - 90;
-				document.getElementById(uuid).innerHTML = innerText+'<div class="verticalLine" style = "top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+				if ($("#"+uuid).hasClass("hasNodes")==true){
+					document.getElementById(uuid).innerHTML = '<div class="hasNodesHeader">'+innerText +'</div>'+
+						'<div class="hasNodesBackground" style="height:'+gridHeightCorrected+'px"></div>'+
+						'<div class="verticalLine" style = "margin-left:0px; top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+				}
+				else{
+					document.getElementById(uuid).innerHTML = innerText+'<div class="verticalLine" style = "top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+				}
 				clearSelection();
 				/////////////////////////
 		 	} 		

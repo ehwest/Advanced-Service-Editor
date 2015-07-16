@@ -8,7 +8,6 @@ function dragMoveListener (event) {
 	// keep the dragged position in the data-x/data-y attributes
 	x = (parseFloat(target.getAttribute('data_x')) || 0) + event.dx,
 	y = (parseFloat(target.getAttribute('data_y')) || 0) + event.dy;
-
 	// translate the element
 	target.style.webkitTransform =
 		target.style.transform =
@@ -21,9 +20,12 @@ function dragMoveListener (event) {
 	if ($("#"+uuid).hasClass("drag-1")){
 		storeXY(nodeArr,uuid);
 	}
-	
-	if (y==22) {
+	console.log(selection);
+	if (y<30) {
+		
+
 		moveSelection(event.dx,event.dy,event.target.id);
+
 		moveDependants(event.dx,event.dy,event.target.id);
 	}
 	else {
@@ -39,7 +41,7 @@ function dragMoveListener (event) {
 	}
 	
 	if (isOverlapped(uuid) == true){
-		document.getElementById(uuid).style.transition = "background .5s ease";		
+		document.getElementById(uuid).style.transition = "background .5s ease";
 		document.getElementById(uuid).style.background = "rgba(255,255,0,.40)"; //yellow
 		//shiftRight(event.target); Include for real-time shifting
 	}

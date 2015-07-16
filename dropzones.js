@@ -34,7 +34,7 @@ interact('.nodeDropzone').dropzone({
 		event.relatedTarget.textContent = 'Placed on grid';
 		if ($(grabbedNode).hasClass("placed")){
 			recallArray(nodeArr, uuid);
-			createNode(text);
+			createNode(text,uuid);
 		}
 		if (!$(grabbedNode).hasClass("placed")){
 			bootbox.prompt({
@@ -56,7 +56,7 @@ interact('.nodeDropzone').dropzone({
 								determineLRNode(arrowArr[i][1],uuid);
 							}
 						}
-						createNode(text);
+						createNode(text,uuid);
 						for (var i=0;i<arrowArr.length;i++){
 							determineLRNode(arrowArr[i][1],uuid);
 						}
@@ -71,12 +71,19 @@ interact('.nodeDropzone').dropzone({
 			});
 				
 		}
-		function createNode(text) {
-			var nodeHeight = parseInt($('.drag-1').height());
+		function createNode(text,uuid) {
+			var nodeHeight = parseInt($("#"+uuid).height());
 			nodeHeightCorrected = nodeHeight+16;
 			var gridHeight = document.getElementById('grid').clientHeight;
 			gridHeightCorrected = gridHeight - 90;
-			event.relatedTarget.innerHTML = text+'<div class="verticalLine" style = "top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+			if ($("#"+uuid).hasClass("hasNodes")==true){
+				event.relatedTarget.innerHTML = '<div class="hasNodesHeader">'+text +'</div>'+
+					'<div class="hasNodesBackground" style="height:'+gridHeightCorrected+'px"></div>'+
+					'<div class="verticalLine" style = "margin-left:0px; top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+			}
+			else{
+				event.relatedTarget.innerHTML = text+'<div class="verticalLine" style = "top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+			}
 			
 
 		}
@@ -95,9 +102,14 @@ interact('.nodeDropzone').dropzone({
 
 //Checks for overlaps
 function isOverlapped (uuid) {
+	for (var i=0; i<nodeArr.length; i++){
+		getChildren(nodeArr[i][1]);
+	}
+	index = recallArray(nodeArr,uuid);
+	getChildren(nodeArr[index][1]);
 	var x = parseInt(document.getElementById(uuid).getAttribute("data_x"));
-	for (var i = 0; i<nodeArr.length; i++) {
-		if(uuid == nodeArr[i][1] || selection.indexOf(nodeArr[i][1]) != -1){
+	for (var i = 0; i<nodeArr.length; i++) {		
+		if(uuid == nodeArr[i][1] || selection.indexOf(nodeArr[i][1]) != -1 || nodeArr[index][8] == nodeArr[i][1] || childrenIDs.indexOf(nodeArr[i][1])!=-1){
 			continue;
 		}
 		if (nodeArr[i][3] == x) {
@@ -282,7 +294,7 @@ interact('.trash').dropzone({
 	ondrop: function (event) {
 		event.relatedTarget.textContent = 'Dropped';
 		//DELETES THE ELEMENT
-		document.getElementById("trash").src = "trashCanFull.png";
+		document.getElementById("trash").src = "trashCanFull.gif";
 		draggableElement = event.relatedTarget;
 		id = event.relatedTarget.id;
 		if ($("#"+id).hasClass("nodeDraggable")){
@@ -331,7 +343,7 @@ interact('.trash')
 	bootbox.dialog({
 		backdrop:true,
 		onEscape: function() {},
-		title: "<img src=\'trashCan.png\' height=\'35\' width=\'auto\'>TrashBin",
+		title: "<img src=\'trashCan.gif\' height=\'35\' width=\'auto\'>TrashBin",
 		size: 'large',		
 		message: '<div id="trashItems"><div id="nodeItems"><h4>Nodes</h3><ol id="nodeOL"></ol><hr></div><div id="arrowItems"><h4>Arrows</h3><ol id="arrowOL"></ol><hr></div><div id="noteItems"><h4>Notes</h3><ol id="noteOL"></ol><hr></div></div>'+
 		'<script>'+
@@ -394,7 +406,7 @@ function restoreElement (index, type) {
 			storeArray("nodeArr", i, guid(), deletedNodes[index][2], transposeX, transposeY, deletedNodes[index][5],null, null);
 			deletedNodes.splice(index,1);
 			if (deletedNodes.length + deletedArrows.length + deletedNotes.length == 0){
-				document.getElementById("trash").src = "trashCan.png";
+				document.getElementById("trash").src = "trashCan.gif";
 			}
 		});
 	}
@@ -434,7 +446,7 @@ function restoreElement (index, type) {
 			warning();
 			deletedArrows.splice(index,1);
 			if (deletedNodes.length + deletedArrows.length + deletedNotes.length == 0){
-				document.getElementById("trash").src = "trashCan.png";
+				document.getElementById("trash").src = "trashCan.gif";
 			}
 		});
 	}
@@ -471,7 +483,7 @@ function restoreElement (index, type) {
 			storeArray("noteArr", i, guid(), deletedNotes[index][2], transposeX, transposeY, deletedNotes[index][5], null, deletedNotes[index][7]-deletedNotes[index][4]);
 			deletedNotes.splice(index,1);
 			if (deletedNodes.length + deletedArrows.length + deletedNotes.length == 0){
-				document.getElementById("trash").src = "trashCan.png";
+				document.getElementById("trash").src = "trashCan.gif";
 			}
 		});
 	}
