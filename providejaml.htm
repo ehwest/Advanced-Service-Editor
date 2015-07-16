@@ -1,0 +1,28 @@
+<?
+
+        $dbhostname = "localhost";
+        $dblogin= "seqops1";
+        $dbpassword= "seqops1";
+        $dbname="seqops1";
+
+
+        error_reporting(E_PARSE);
+
+        if(!($dbLink = mysql_connect($dbhostname,$dblogin,$dbpassword)))
+                {
+                print("Failed to connect to db server.");
+                exit();
+                }
+        if(!mysql_select_db($dbname,$dbLink))
+                {
+                print("Failed to select database.");
+                exit();
+                }
+
+	$jix = $_REQUEST['jix'];
+
+        $q1 = "SELECT * from jaml WHERE jix='" . $jix . "';";
+        $dbr1 = mysql_query($q1);
+        $row1=mysql_fetch_object($dbr1);
+	print $row1->jaml;
+?>

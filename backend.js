@@ -4,7 +4,7 @@ var m;
 var doc;
 var linePosition;
 var lineSpacing;
-function saveToFile(){
+function saveDialog (){
 	var now = new Date;
 	var utc_timestamp = Date.UTC(now.getUTCFullYear(),now.getUTCMonth(), now.getUTCDate() , 
              now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
@@ -25,22 +25,45 @@ function saveToFile(){
 	m +=  '],\n "notes": [\n';
 	noteArr.forEach(saveNoteArrayElements);
 	m += "]}}}";
-
-	var n = JSON.parse(m);
-
-	if (filename == "Flow_SDE"){
-		filename = "My_Flow_1.txt";
+	if (filename.slice(-3) != "txt"){
+		filename += ".txt";
 	}
-	document.getElementById("titleBar").innerHTML = '<div class="center" style="width:29%"><p style = "cursor:pointer;display:inline;margin-right:15px;font-family:Arial Black; line-height:10px;" onclick="resetTitleBar();">X</p>Filename: <input id="saveFileName" type="text" value='+filename+'><button style = "display:inline;" onclick="saveFile($(\'#saveFileName\').val())">Confirm!</button><button style = "margin-left:10px;display:inline;" onclick="alert(m);">Source</button></div>';
-	$("#saveFileName").selectRange(0,filename.length-4);
+	var n = JSON.parse(m);
+	bootbox.dialog({
+		backdrop:true,
+		animate:false,
+		onEscape: function() {},
+		title: 'Save File<button style = "margin-left:10px;display:inline;" onclick="alert(m);">Source</button>',
+		size: 'large',		
+		message: '<p><h4>Save locally to hard drive : </h4></p>'+
+		'<br>Filename: <input id="saveLocalFileName" type="text" value='+filename+'><button style = "display:inline;" onclick="saveLocalFile($(\'#saveLocalFileName\').val())">Confirm!</button></div>'+
+		'<br><hr>'+
+		'<p><h4>Save to database : </h4></p>'+
+		'<br>Filename: <input id="saveDBFileName" type="text" value='+filename+'><button style = "display:inline;" onclick="saveDBFile($(\'#saveDBFileName\').val())">Confirm!</button></div>'
+		
+
+	});
 	//Let enter (13) submit the text
-	$("#saveFileName").keyup( function(e) {
+	$("#saveLocalFileName").keyup( function(e) {
 		if (e.keyCode == 13){
-			filename = $("#saveFileName").val();
-			saveFile(filename);
+			filename = $("#saveLocalFileName").val();
+			saveLocalFile(filename);
 		}
 	});
+	$("#saveDBFileName").keyup( function(e) {
+		if (e.keyCode == 13){
+			filename = $("#saveDBFileName").val();
+			saveDBFile(filename);
+		}
+	});
+	$("#saveLocalFileName").click(function(){
+		$("#saveLocalFileName").selectRange(0,filename.length-4);
+	});
+	$("#saveDBFileName").click(function(){
+		$("#saveLocalFileName").selectRange(0,filename.length-4);
+	});
 }
+
 
 function saveNodeArrayElements(element, index, array) {
 	var myElement = document.getElementById(element[1]);
@@ -84,7 +107,9 @@ function saveNoteArrayElements(element, index, array) {
 }
 
 //Creates blob and exports to downloads folder
-function saveFile(name) {
+function saveLocalFile(name) {
+	bootbox.hideAll();
+	
 	var textToWrite = m
 	var blob = new Blob([m], {type: "text/plain;charset=utf-8"});
 	
@@ -98,31 +123,93 @@ function saveFile(name) {
 	downloadLink.href = window.webkitURL.createObjectURL(blob);
 	downloadLink.click();
 	
-	resetTitleBar();
+
 }
 
-function loadFromFile(){
-	document.getElementById("titleBar").innerHTML = '<div class="center" style="width:35%;"><p style = "cursor:pointer;display:inline;margin-right:15px;font-family:Arial Black; line-height:10px;" onclick="resetTitleBar();">X</p><input type="file" accept=".txt" name="fileToLoad" id = "fileToLoad"><button style = "display:inline;" onclick="loadFile(0);">Replace!</button><button style = "display:inline;" onclick="loadFile(1);">Append!</button><button style = "margin-left:10px;display:inline;" onclick="alert(textFromFileLoaded);">Source</button></div>';	
+//Creates blob and exports to database
+function saveDBFile(name) {
+	bootbox.hideAll();
+	
+	var textToWrite = m
+	var blob = new Blob([m], {type: "text/plain;charset=utf-8"});
+	
+	//add .txt if not already present
+	if (name.slice(-3) != "txt"){
+		name += ".txt";
+	}
+	//Earle: the text to write is stored in the var textToWrite. To save locally, I had to convert this to a blob file
+	// so that is provided as well if needed
+
+	
+
 }
+
+
+//LOADING
+
+function loadDialog (){
+	//load table into var
+	var message = null;
+	$.get('loadableList.htm')
+		.success(function(data){
+			var message = data;
+			bootbox.dialog({
+				backdrop:true,
+				animate:false,
+				onEscape: function() {},
+				title: 'Load File',
+				size: 'large',		
+				message: '<p><h4>Load locally from hard drive : </h4></p>'+
+				'<input type="file" accept=".txt" name="fileToLoad" id = "fileToLoad"><button style = "display:inline;" onclick="loadFile(0);">Replace!</button><button style = "display:inline;" onclick="loadFile(1);">Append!</button><button style = "margin-left:10px;display:inline;" onclick="loadFile(2);">Source</button></div>'+
+				'<br><hr>'+
+				'<p><h4>Load from database : </h4></p>'+message		
+			});
+		},"text")
+		.error(function(jqXHR, textStatus, errorThrown){
+			console.log(jqXHR+' ' +textStatus+' ' +errorThrown);
+			var message = '<i>Error: Database not detected or configured</i>';
+			bootbox.dialog({
+				backdrop:true,
+				animate:false,
+				onEscape: function() {},
+				title: 'Load File',
+				size: 'large',		
+				message: '<p><h4>Load locally from hard drive : </h4></p>'+
+				'<input type="file" accept=".txt" name="fileToLoad" id = "fileToLoad"><button style = "display:inline;" onclick="loadFile(0);">Replace!</button><button style = "display:inline;" onclick="loadFile(1);">Append!</button><button style = "margin-left:10px;display:inline;" onclick="loadFile(2);">Source</button></div>'+
+				'<br><hr>'+
+				'<p><h4>Load from database : </h4></p>'+message		
+			});
+		});
+
+}
+
+
 
 function loadFile(typeOfLoad,preloadedFile) {
 	if(preloadedFile==null){
 		var file = document.getElementById("fileToLoad").files[0];
-		console.log(file);
+		//console.log(file);
 		var reader = new FileReader();
 		reader.onload = recievedText;
 		reader.readAsText(file);
 	}
 	else {
-		reader.onload = recievedText;
+		//GET TEXT FROM preloadedFile AND STORE TO importedText
+		$.get(preloadedFile,function(data){
+			var importedText = data;
+			recievedText(importedText);
+		});
 	}
 
-	function recievedText () { //Called when fully loaded
+	function recievedText (importedText) { //Called when fully loaded
 		if (preloadedFile==null) {
 			var textFromFileLoaded = reader.result;
+	    	var path = document.getElementById("fileToLoad").value;
+	    	var loadedFilename = path.replace(/^.*\\/,"");
 		}
 		else {
-			var textFromFileLoaded = preloadedFile;
+			var textFromFileLoaded = importedText;
+			var loadedFilename = "Call_Filename_Here";
 		}
 		var n = JSON.parse(textFromFileLoaded);
 		
@@ -133,11 +220,10 @@ function loadFile(typeOfLoad,preloadedFile) {
         var loadedRows = n.diagram.rows;
         var loadedCols = n.diagram.cols;
 
-    	var path = document.getElementById("fileToLoad").value;
-    	var loadedFilename = path.replace(/^.*\\/,"");
         
         //Replace			
-		if (typeOfLoad == 0){	
+		if (typeOfLoad == 0){
+			bootbox.hideAll();
 			rows=loadedRows;
 			cols=loadedCols;
 			newProject();
@@ -152,7 +238,8 @@ function loadFile(typeOfLoad,preloadedFile) {
 		}
 		
 		//Append
-		if (typeOfLoad == 1){
+		else if (typeOfLoad == 1){
+			bootbox.hideAll();
 			$("#nodeZone").addClass('drop-target');
 			$("#nodeZone").css('cursor','crosshair');
 			document.getElementById("titleBar").innerHTML = '<div class="center" style="width:25%;">Click where to append then press okay <button id="appendBtn" style="margin-left:10px;">Okay!</button></div>';
@@ -206,7 +293,10 @@ function loadFile(typeOfLoad,preloadedFile) {
 				resetTitleBar();
 				loadEverything(transpose,"append");
 			});
-		}		
+		}	
+		else {
+			alert(textFromFileLoaded);
+		}
 
 		function loadEverything (transpose,typeOfLoad){
 			for (var i in allNodes ){
