@@ -68,9 +68,10 @@ function storeArray (arrayType, i, id, text, lX, lY, wide, direction, height) {
 						text +
 					'<div class="verticalLine" style="top:'+nodeHeightCorrected+'px;height:'+gridHeightCorrected+'px;"></div>'+
 			      '</div>';
-		nodeArr.push([tag,id,text,parseInt(lX),parseInt(lY),wide,parseInt(lX)+parseInt(wide),parseInt(lY)]);
 		var dropOffLocation = document.getElementById("nodeChildrenDroppedOffHere");
 		dropOffLocation.innerHTML += tag;
+		nodeArr.push([document.getElementById(id),id,text,parseInt(lX),parseInt(lY),wide,parseInt(lX)+parseInt(wide),parseInt(lY)]);
+		
 		if (isOverlapped(id) == true){
 			shiftRight(document.getElementById(id),160);
 		}
@@ -109,10 +110,11 @@ function storeArray (arrayType, i, id, text, lX, lY, wide, direction, height) {
 		  '</div>'
 		}
 					
-		arrowArr.push([tag,id,text,parseInt(lX),lY,parseInt(wide),parseInt(lX)+parseInt(wide),parseInt(lY)]);
 		
 		var dropOffLocation = document.getElementById("arrowChildrenDroppedOffHere");
 		dropOffLocation.innerHTML += tag;
+		arrowArr.push([document.getElementById(id),id,text,parseInt(lX),lY,parseInt(wide),parseInt(lX)+parseInt(wide),parseInt(lY)]);
+		
 		determineLRNode(id,"arrow");
 	}
 	if (arrayType == "noteArr"){
@@ -121,9 +123,10 @@ function storeArray (arrayType, i, id, text, lX, lY, wide, direction, height) {
 					'style="transform: translate(' + lX + 'px, ' + lY + 'px); -webkit-transform: translate(' + lX + 'px, ' + lY + 'px);width: '+wide+'px; height: '+height+'px;">' +
 						text +
 				  '</div>';
-		noteArr.push([tag,id,text,parseInt(lX),parseInt(lY),wide,parseInt(lX)+parseInt(wide),parseInt(lY)+parseInt(height)]);
 		var dropOffLocation = document.getElementById("noteChildrenDroppedOffHere");
 		dropOffLocation.innerHTML += tag;
+		noteArr.push([document.getElementById(id),id,text,parseInt(lX),parseInt(lY),wide,parseInt(lX)+parseInt(wide),parseInt(lY)+parseInt(height)]);
+		
 	}
 }
 
