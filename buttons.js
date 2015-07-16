@@ -28,7 +28,7 @@ function newProject() {
 	deletedNodes.length = 0;
 	deletedArrows.length = 0;
 	deletedNotes.length = 0;
-	document.getElementById("trash").src = "trashCan.png";
+	document.getElementById("trash").src = "trashCan.gif";
 	nodeArr=[];
 	arrowArr=[];
 	noteArr=[];
