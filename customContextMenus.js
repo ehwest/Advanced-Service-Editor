@@ -413,7 +413,7 @@ function addChildrenToGroup () {
 	}
 	var height = $("#"+selection[0]).height();
 	var wide = $("#"+selection[0]).width();
-	
+	getChildren(selection[0]);
 	height+=dy;
 	wide+=dx;
 	
@@ -452,7 +452,6 @@ function addChildrenToGroup () {
 
 	//SHIFT NODES RIGHT
 	shiftMe.length = 0;
-	getChildren(selection[0]);
 	for (var i=0; i<nodeArr.length; i++){
 		if (nodeArr[i][1] == selection[0]){
 			continue;
@@ -489,10 +488,104 @@ function addChildrenToGroup () {
 	
 	if ($("#"+selection[0]).hasClass("hasNodes")==false){ //first time		
 		$("#"+selection[0]).addClass("hasNodes");
-		document.getElementById(selection[0]).style.zIndex = document.getElementById(selection[0]).style.zIndex - 10;
+		document.getElementById(selection[0]).style.zIndex = 9980;
+		//document.getElementById(selection[0]).style.zIndex = document.getElementById(selection[0]).style.zIndex - 10;
+		breakArrows();
 	}
-	
+
 	spawnChild();
+}
+
+function breakArrows () {
+	getStartArrowDependants(selection[0]);
+	getEndArrowDependants(selection[0]);
+	nodeIndex = recallArray(nodeArr,selection[0]);
+	for (var i=0; i<startArrowDependants.length; i++){
+		var target = document.getElementById(startArrowDependants[i]);
+		var arrowIndex=recallArray(arrowArr,startArrowDependants[i]);
+		if(target.getAttribute('direction')=='right'){		
+			var newWide = parseFloat(target.style.width) - (parseFloat(nodeArr[nodeIndex][6])- parseFloat(arrowArr[arrowIndex][3]));
+			$("#"+target.id).width(newWide);
+			// keep the dragged position in the data-x/data-y attributes
+			x = (parseFloat(target.getAttribute('data_x')) || 0) + 50,
+			y = (parseFloat(target.getAttribute('data_y')) || 0) + 0;
+			
+			// translate the element
+			target.style.webkitTransform =
+				target.style.transform =
+					'translate(' + x + 'px, ' + y + 'px)';
+	
+			// update the position attributes
+			target.setAttribute('data_x', x);
+			target.setAttribute('data_y', y);
+			
+			storeXY(arrowArr,target.id);			
+		}
+		else if(target.getAttribute('direction')=='left'){		
+			var newWide = parseFloat(target.style.width) - (parseFloat(arrowArr[arrowIndex][6]) - parseFloat(nodeArr[nodeIndex][3])) - 12;
+			$("#"+target.id).width(newWide);
+			// keep the dragged position in the data-x/data-y attributes
+			x = (parseFloat(target.getAttribute('data_x')) || 0) + 0,
+			y = (parseFloat(target.getAttribute('data_y')) || 0) + 0;
+			
+			// translate the element
+			target.style.webkitTransform =
+				target.style.transform =
+					'translate(' + x + 'px, ' + y + 'px)';
+	
+			// update the position attributes
+			target.setAttribute('data_x', x);
+			target.setAttribute('data_y', y);
+			
+			storeXY(arrowArr,target.id);			
+		}
+		//TEMP YELLOW COLOR 
+		document.getElementById(target.id).style.background = "rgba(255,255,0,.30)"; //Yellow
+	}
+	for (var i=0; i<endArrowDependants.length; i++){
+		var target = document.getElementById(endArrowDependants[i]);
+		var arrowIndex=recallArray(arrowArr,endArrowDependants[i]);
+		if(target.getAttribute('direction')=='left'){		
+			var newWide = parseFloat(target.style.width) - (parseFloat(nodeArr[nodeIndex][6]) - parseFloat(arrowArr[arrowIndex][3]));
+			$("#"+target.id).width(newWide);
+			// keep the dragged position in the data-x/data-y attributes
+			x = (parseFloat(target.getAttribute('data_x')) || 0) + 50,
+			y = (parseFloat(target.getAttribute('data_y')) || 0) + 0;
+			
+			// translate the element
+			target.style.webkitTransform =
+				target.style.transform =
+					'translate(' + x + 'px, ' + y + 'px)';
+	
+			// update the position attributes
+			target.setAttribute('data_x', x);
+			target.setAttribute('data_y', y);
+			
+			storeXY(arrowArr,target.id);			
+		}
+		else if(target.getAttribute('direction')=='right'){		
+			var newWide = parseFloat(target.style.width) - (parseFloat(arrowArr[arrowIndex][6]) - parseFloat(nodeArr[nodeIndex][3])) - 12;
+			$("#"+target.id).width(newWide);
+			// keep the dragged position in the data-x/data-y attributes
+			x = (parseFloat(target.getAttribute('data_x')) || 0) + 0,
+			y = (parseFloat(target.getAttribute('data_y')) || 0) + 0;
+			
+			// translate the element
+			target.style.webkitTransform =
+				target.style.transform =
+					'translate(' + x + 'px, ' + y + 'px)';
+	
+			// update the position attributes
+			target.setAttribute('data_x', x);
+			target.setAttribute('data_y', y);
+			
+			storeXY(arrowArr,target.id);			
+		}
+		//TEMP YELLOW COLOR 
+		document.getElementById(target.id).style.background = "rgba(255,255,0,.30)"; //Yellow
+	}
+	//warning();
+
 }
 
 function spawnChild() {	
