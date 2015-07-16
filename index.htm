@@ -9,6 +9,7 @@
 	<style>
 	</style>
 	<script>
+		
 	</script>
 </head>
 
@@ -46,9 +47,9 @@
 		<div id = "warning" style="font-style: italic; font-size: 12px; margin-top:12px; text-align:center; cursor:pointer" onClick = "blinkMissingArrows();"></div>
 		<div style = "position:absolute; bottom:0; width:100%;">			
 			<hr />
-			<img id="trash" class=trash src="trashCan.gif" height="100" width="auto" style="cursor:pointer;margin-bottom:5px;margin-top:18px;">
-			<button id="saveButton" class="little" style = "display:inline;margin-left:12px;" onmouseover="repeater=setInterval(warning(),100);" onmouseout="clearInterval(repeater);" onClick = "saveDialog();">Save</button>
-			<button class="little" style = "display:inline;" onClick = "loadDialog();">Load</button>
+			<img id="trash" class=trash src="trashCan.png" height="100" width="auto" style="cursor:pointer;margin-bottom:5px;margin-top:18px;">
+			<button id="saveButton" class="little" style = "display:inline;margin-left:12px;" onmouseover="repeater=setInterval(warning(),100);" onmouseout="clearInterval(repeater);" onClick = "saveToFile();">Save</button>
+			<button class="little" style = "display:inline;" onClick = "loadFromFile();">Load</button>
 			<button id="printButton" class="little" style = "display:inline;" onmouseover="repeater=setInterval(warning(),100);" onmouseout="clearInterval(repeater);" onClick = "printDiagram();">Print</button>
 		<br>
 		</div>
@@ -116,17 +117,7 @@
     <script src="dictionary.js"></script>
     <script src="customContextMenus.js"></script>
     
-    <script>newProject();
-   
-    try {
-    	loadFile(0,preloadedJSON);
-    }
-    catch(err){   	
-    }
-    finally {
-    }
-    
-    </script>
+    <script>newProject();</script>
 	<script>
 	    //Allows nodes to scroll with the page and adjusts transparencies
 		$(window).scroll(function(event) {
