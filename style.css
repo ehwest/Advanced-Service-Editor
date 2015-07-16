@@ -473,6 +473,37 @@ p.draggables {
           transform: translate(0px, 0px);
 }
 
+.hasNodesHeader {
+  width: inherit;
+  height: 18px;
+  
+  margin: 0;
+  margin-left:0px;
+  position:absolute;
+  top:-21px;
+  background-color: #29e;
+  color: white;
+  z-index:9995;
+  border-radius: 0em;
+  border:solid 1px #fff;
+  border-bottom:none;
+  padding: 0em;
+  -webkit-transform: translate(0px, 0px);
+          transform: translate(0px, 0px);
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow: ellipsis;
+}
+.hasNodesBackground{
+	height:100px;
+	width:inherit;
+	background-color:grey;
+	opacity:0.5;
+	position:absolute;
+	z-index:9000;
+	top:66px;
+}
+
 .selected {
 	opacity: 0.8;
 	border-style: dashed;
