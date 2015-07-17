@@ -235,6 +235,7 @@ function loadFile(typeOfLoad,preloadedFile) {
 			filename = loadedFilename;
 			resetTitleBar();
 			loadEverything(0,"replace");
+			adjustWidth();
 		}
 		
 		//Append
@@ -292,6 +293,7 @@ function loadFile(typeOfLoad,preloadedFile) {
 				filename = filename + "_&_" + loadedFilename
 				resetTitleBar();
 				loadEverything(transpose,"append");
+				adjustWidth();
 			});
 		}	
 		else {
@@ -346,6 +348,18 @@ function loadFile(typeOfLoad,preloadedFile) {
 			}
 		}
 	}	
+}
+
+function adjustWidth () {
+	var maxX = 0;
+	for (var i=0; i<nodeArr.length; i++){
+		if (nodeArr[i][3]>maxX){
+			maxX = nodeArr[i][3];
+		}		
+	}
+	while (maxX>$("#grid").width() - $("#sideBar").width()){
+		addWidth();
+	}
 }
 
 function resetTitleBar () {

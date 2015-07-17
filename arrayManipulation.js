@@ -80,9 +80,6 @@ function storeArray (arrayType, i, id, text, lX, lY, wide, direction, height) {
 				determineLRNode(arrowArr[i][1],id);
 			}
 		}
-		while (lX>$("#grid").width() - $("#sideBar").width()){
-			addWidth();
-		}
 	}
 	if (arrayType == "arrowArr"){
 		if (direction == "right"){
