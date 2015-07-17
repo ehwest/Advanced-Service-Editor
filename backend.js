@@ -273,7 +273,7 @@ function loadFile(typeOfLoad,preloadedFile) {
 			var nodeArr = [], arrowArr = [];
 			
 			if (loadedFilename.slice(-3) == "txt"){
-				loadedFilename =loadedFilename.substring(0, str.length-4);
+				loadedFilename =loadedFilename.substring(0, loadedFilename.length-4);
 			}
 			name = loadedFilename;
 			
