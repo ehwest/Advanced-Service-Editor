@@ -8,6 +8,35 @@ var lastSelected = null;
 
 interact('.nodeDraggable')	
 	.on('tap',function (event){
+		if (event.target.className=='hasNodesHeader' && event.button == 0){
+			var mainNode = event.target.parentNode
+			var index=recallArray(nodeArr,mainNode.id);
+			if ($("#"+mainNode.id).hasClass("expanded")){
+				var children = nodeArr[index][9];
+				for (var i=0; i<children.length;i++){
+					$("#"+children[i]).css('display','none');
+					//Collapse	
+					//var x = nodeArr[index][3];
+					//var y = document.getElementById(children[i]).getAttribute('data_y');
+					//document.getElementById(children[i]).style.webkitTransform = document.getElementById(children[i]).style.transform =
+					//	'translate(' + x + 'px,' + y + 'px)';					
+				}
+				$("#"+mainNode.id).removeClass("expanded");
+				$("#"+mainNode.id).addClass("collapsed");
+				//$("#"+mainNode.id).width(160);
+					
+				
+			}
+			else if ($("#"+mainNode.id).hasClass("collapsed")){
+				var children = nodeArr[index][9];
+				for (var i=0; i<children.length;i++){
+					$("#"+children[i]).css('display','inline-block');
+					//Restore
+				}
+				$("#"+mainNode.id).addClass("expanded");
+				$("#"+mainNode.id).removeClass("collapsed");
+			}
+		}
 		if ($("#"+event.target.id).hasClass('placed') && event.ctrlKey == false && event.shiftKey==false && event.button == 0){
 			clearSelection();
 			selection.push(event.target.id);
@@ -589,9 +618,18 @@ function moveDependants (dx,dy,nodeID) {
 	}
 }
 
+
 interact('.placed')
 //CLONING
-.on('doubletap',function (event) {renameNode(event.target.id)});
+.on('doubletap',function (event) {
+	if(event.button == 0){
+		uuid = event.target.id;
+		if(uuid==""){
+			uuid = event.target.parentNode.id;
+		}
+		renameNode(uuid);
+	}
+});
 
 function renameNode (uuid) {
 	recallArray(nodeArr, uuid);

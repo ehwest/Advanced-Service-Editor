@@ -103,10 +103,10 @@ interact('.nodeDropzone').dropzone({
 //Checks for overlaps
 function isOverlapped (uuid) {
 	for (var i=0; i<nodeArr.length; i++){
-		getChildren(nodeArr[i][1]);
+		calcChildren(nodeArr[i][1]);
 	}
 	index = recallArray(nodeArr,uuid);
-	getChildren(nodeArr[index][1]);
+	calcChildren(nodeArr[index][1]);
 	var x = parseInt(document.getElementById(uuid).getAttribute("data_x"));
 	for (var i = 0; i<nodeArr.length; i++) {		
 		if(uuid == nodeArr[i][1] || selection.indexOf(nodeArr[i][1]) != -1 || nodeArr[index][8] == nodeArr[i][1] || childrenIDs.indexOf(nodeArr[i][1])!=-1){

@@ -413,7 +413,7 @@ function addChildrenToGroup () {
 	}
 	var height = $("#"+selection[0]).height();
 	var wide = $("#"+selection[0]).width();
-	getChildren(selection[0]);
+	calcChildren(selection[0]);
 	height+=dy;
 	wide+=dx;
 	
@@ -488,6 +488,7 @@ function addChildrenToGroup () {
 	
 	if ($("#"+selection[0]).hasClass("hasNodes")==false){ //first time		
 		$("#"+selection[0]).addClass("hasNodes");
+		$("#"+selection[0]).addClass("expanded");
 		document.getElementById(selection[0]).style.zIndex = 9980;
 		//document.getElementById(selection[0]).style.zIndex = document.getElementById(selection[0]).style.zIndex - 10;
 		breakArrows();
@@ -504,10 +505,10 @@ function breakArrows () {
 		var target = document.getElementById(startArrowDependants[i]);
 		var arrowIndex=recallArray(arrowArr,startArrowDependants[i]);
 		if(target.getAttribute('direction')=='right'){		
-			var newWide = parseFloat(target.style.width) - (parseFloat(nodeArr[nodeIndex][6])- parseFloat(arrowArr[arrowIndex][3]));
+			var newWide = parseFloat(target.style.width) - (parseFloat(nodeArr[nodeIndex][6])- parseFloat(arrowArr[arrowIndex][3]))-25;
 			$("#"+target.id).width(newWide);
 			// keep the dragged position in the data-x/data-y attributes
-			x = (parseFloat(target.getAttribute('data_x')) || 0) + 50,
+			x = (parseFloat(target.getAttribute('data_x')) || 0) + 75,
 			y = (parseFloat(target.getAttribute('data_y')) || 0) + 0;
 			
 			// translate the element
@@ -522,7 +523,7 @@ function breakArrows () {
 			storeXY(arrowArr,target.id);			
 		}
 		else if(target.getAttribute('direction')=='left'){		
-			var newWide = parseFloat(target.style.width) - (parseFloat(arrowArr[arrowIndex][6]) - parseFloat(nodeArr[nodeIndex][3])) - 12;
+			var newWide = parseFloat(target.style.width) - (parseFloat(arrowArr[arrowIndex][6]) - parseFloat(nodeArr[nodeIndex][3])) - 37;
 			$("#"+target.id).width(newWide);
 			// keep the dragged position in the data-x/data-y attributes
 			x = (parseFloat(target.getAttribute('data_x')) || 0) + 0,
@@ -546,10 +547,10 @@ function breakArrows () {
 		var target = document.getElementById(endArrowDependants[i]);
 		var arrowIndex=recallArray(arrowArr,endArrowDependants[i]);
 		if(target.getAttribute('direction')=='left'){		
-			var newWide = parseFloat(target.style.width) - (parseFloat(nodeArr[nodeIndex][6]) - parseFloat(arrowArr[arrowIndex][3]));
+			var newWide = parseFloat(target.style.width) - (parseFloat(nodeArr[nodeIndex][6]) - parseFloat(arrowArr[arrowIndex][3]))-25;
 			$("#"+target.id).width(newWide);
 			// keep the dragged position in the data-x/data-y attributes
-			x = (parseFloat(target.getAttribute('data_x')) || 0) + 50,
+			x = (parseFloat(target.getAttribute('data_x')) || 0) + 75,
 			y = (parseFloat(target.getAttribute('data_y')) || 0) + 0;
 			
 			// translate the element
@@ -564,7 +565,7 @@ function breakArrows () {
 			storeXY(arrowArr,target.id);			
 		}
 		else if(target.getAttribute('direction')=='right'){		
-			var newWide = parseFloat(target.style.width) - (parseFloat(arrowArr[arrowIndex][6]) - parseFloat(nodeArr[nodeIndex][3])) - 12;
+			var newWide = parseFloat(target.style.width) - (parseFloat(arrowArr[arrowIndex][6]) - parseFloat(nodeArr[nodeIndex][3])) - 37;
 			$("#"+target.id).width(newWide);
 			// keep the dragged position in the data-x/data-y attributes
 			x = (parseFloat(target.getAttribute('data_x')) || 0) + 0,
@@ -590,7 +591,7 @@ function breakArrows () {
 
 function spawnChild() {	
 	index = recallArray("node",selection[0]);
-	maxX = getChildren(selection[0]);
+	maxX = calcChildren(selection[0]);
 	bootbox.prompt({
 		closeButton:false,backdrop:true,animate:false,
 		size:'small',
@@ -626,7 +627,11 @@ function spawnChild() {
 				
 				document.getElementById(id).classList.add('placed');
 				document.getElementById(id).classList.add('verticallyScrollable');
-				clearSelection();
+				calcChildren(selection[0]);
+				if (nodeArr[index][8] == null){
+					nodeArr[index][8] = 0;
+				}
+				nodeArr[index].splice(9,1,childrenIDs);
 				/////////////////////////
 		 	} 		
 		}
@@ -638,7 +643,7 @@ function spawnChild() {
 }
 
 var childrenIDs = []
-function getChildren (uuid) {
+function calcChildren (uuid) {
 	childrenIDs.length=0;
 	if ($("#"+uuid).hasClass('hasNodes')){
 		index = recallArray(nodeArr,uuid);
@@ -655,7 +660,19 @@ function getChildren (uuid) {
 				nodeArr[i][8] = uuid;
 			}			
 		}
-		console.log(maxX);
+		return maxX
+	}
+}
+function getChildren (uuid) {
+	childrenIDs.length=0;
+	if ($("#"+uuid).hasClass('hasNodes')){
+		index = recallArray(nodeArr,uuid);
+		var maxX = nodeArr[index][3]-160;
+		for (var i=0; i<nodeArr.length; i++){			
+			if (nodeArr[i][8] = uuid){
+				childrenIDs.push(nodeArr[i][1]);
+			}			
+		}
 		return maxX
 	}
 }
