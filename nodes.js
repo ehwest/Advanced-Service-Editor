@@ -664,7 +664,8 @@ function renameNode (uuid) {
 	});
 	$("#box").autocomplete({
 		source: nodeTags,
-		autoFocus: true
+		autoFocus: true,
+		delay: 0
 	});
 }
 

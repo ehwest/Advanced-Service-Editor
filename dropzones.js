@@ -67,7 +67,8 @@ interact('.nodeDropzone').dropzone({
 			});
 			$("#box").autocomplete({
 				source: nodeTags,
-				autoFocus: true
+				autoFocus: true,
+				delay: 0
 			});
 				
 		}
@@ -219,7 +220,8 @@ interact('.arrowDropzone').dropzone({
 			});
 			$("#box").autocomplete({
 				source: arrowTags,
-				autoFocus: true
+				autoFocus: true,
+				delay: 0
 			});
 
 		}
@@ -248,7 +250,8 @@ interact('.arrowDropzone').dropzone({
 			});
 			$("#box").autocomplete({
 				source: noteTags,
-				autoFocus: true
+				autoFocus: true,
+				delay: 0
 			});			
 		}
 	},

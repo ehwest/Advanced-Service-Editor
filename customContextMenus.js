@@ -638,7 +638,8 @@ function spawnChild() {
 	});
 	$("#box").autocomplete({
 		source: nodeTags,
-		autoFocus: true
+		autoFocus: true,
+		delay: 0
 	});
 }
 

@@ -1,34 +1,34 @@
 //Contains dictionary (in form of arrays, implementing databases in the future) and functions to append new terms to them
 
 var nodeTags = [
-                 "alpha",
-                 "bravo",
-                 "charlie",
-                 "delta",
-                 "echo",
-                 "fox",
-                 "golf",
-                 "hotel",
-                 "item",
-                 "jump",
-                 "kappa",
-                 "lion",
-                 "mso"
+                 "Order Trigger System",
+                 "MSO",
+                 "SDN-C",
+                 "A&AI",
+                 "PO",
+                 "Customer Request"
 		];	
 var arrowTags = [
-                "alpha",
-                "bravo",
-                "charlie",
-                "delta",
-                "echo",
-                "fox",
-                "golf",
-                "hotel",
-                "item",
-                "jump",
-                "kappa",
-                "lion",
-                "mso"
+                "Request",
+                "Create a service with parameters",
+                "Ok",
+                "Start BPEL",
+                "Get service instance ID",
+                "Service instance ID",
+                "Service configuration operation reserve with parameters",
+                "Sanity check",
+                "Compute assign phase",
+                "Service topology operation assign",
+                "Assign resources",
+                "Future LAN",
+                "Service Config Operation Activate",
+                "Post service instance ID",
+                
+                "Service instance ready (notification)",
+                "Assign resources",
+                "Future LAN",
+                "Service Config Operation Activate",
+                "Post service instance ID"
 ];
 var noteTags = [
                 "alpha",
@@ -43,7 +43,7 @@ var noteTags = [
                 "jump",
                 "kappa",
                 "lion",
-                "mso"
+                "man"
 ];
 
 function pushToDict(innerText,type){

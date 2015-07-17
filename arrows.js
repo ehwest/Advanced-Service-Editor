@@ -106,7 +106,8 @@ function renameArrow (uuid) {
 	});
 	$("#box").autocomplete({
 		source: arrowTags,
-		autoFocus: true
+		autoFocus: true,
+		delay: 0
 	});
 }
 

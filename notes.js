@@ -133,7 +133,8 @@ interact('.notePlaced')
 	});
 	$("#box").autocomplete({
 		source: noteTags,
-		autoFocus: true
+		autoFocus: true,
+		delay: 0
 	});	
 });
 
