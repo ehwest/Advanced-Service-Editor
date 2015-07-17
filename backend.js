@@ -25,9 +25,7 @@ function saveDialog (){
 	m +=  '],\n "notes": [\n';
 	noteArr.forEach(saveNoteArrayElements);
 	m += "]}}}";
-	if (filename.slice(-3) != "txt"){
-		filename += ".txt";
-	}
+
 	var n = JSON.parse(m);
 	bootbox.dialog({
 		backdrop:true,
@@ -36,31 +34,53 @@ function saveDialog (){
 		title: 'Save File<button style = "margin-left:10px;display:inline;" onclick="alert(m);">Source</button>',
 		size: 'large',		
 		message: '<p><h4>Save locally to hard drive : </h4></p>'+
-		'<br>Filename: <input id="saveLocalFileName" type="text" value='+filename+'><button style = "display:inline;" onclick="saveLocalFile($(\'#saveLocalFileName\').val())">Confirm!</button></div>'+
+		'<br>Filename: <input id="saveLocalFileName" type="text" value='+name+'><input id="saveLocalDescription" type="text" size=60; value="'+description+'" placeholder="Add description"><button style = "display:inline;" onclick="saveLocalFile($(\'#saveLocalFileName\').val(),$(\'#saveLocalDescription\').val())">Confirm!</button></div>'+
 		'<br><hr>'+
 		'<p><h4>Save to database : </h4></p>'+
-		'<br>Filename: <input id="saveDBFileName" type="text" value='+filename+'><button style = "display:inline;" onclick="saveDBFile($(\'#saveDBFileName\').val())">Confirm!</button></div>'
+		'<br>Filename: <input id="saveDBFileName" type="text" value='+name+'><input id="saveDBDescription" type="text" size=60; value="'+description+'" placeholder="Add description"><button style = "display:inline;" onclick="saveDBFile($(\'#saveDBFileName\').val(),$(\'#saveDBDescription\').val())">Confirm!</button></div>'
 		
 
 	});
 	//Let enter (13) submit the text
 	$("#saveLocalFileName").keyup( function(e) {
 		if (e.keyCode == 13){
-			filename = $("#saveLocalFileName").val();
-			saveLocalFile(filename);
+			name = $("#saveLocalFileName").val();
+			description = $("#saveLocalDescription").val();
+			saveLocalFile(name, description);
 		}
 	});
 	$("#saveDBFileName").keyup( function(e) {
 		if (e.keyCode == 13){
 			filename = $("#saveDBFileName").val();
-			saveDBFile(filename);
+			description = $("#saveDBDescription").val();
+			saveDBFile(name, description);
+		}
+	});
+	$("#saveLocalDescription").keyup( function(e) {
+		if (e.keyCode == 13){
+			filename = $("#saveLocalFileName").val();
+			description = $("#saveLocalDescription").val();
+			saveLocalFile(name, description);
+		}
+	});
+	$("#saveDBDescription").keyup( function(e) {
+		if (e.keyCode == 13){
+			filename = $("#saveDBFileName").val();
+			description = $("#saveDBDescription").val();
+			saveDBFile(name, description);
 		}
 	});
 	$("#saveLocalFileName").click(function(){
-		$("#saveLocalFileName").selectRange(0,filename.length-4);
+		$("#saveLocalFileName").selectRange(0,name.length);
 	});
 	$("#saveDBFileName").click(function(){
-		$("#saveLocalFileName").selectRange(0,filename.length-4);
+		$("#saveDBFileName").selectRange(0,name.length);
+	});
+	$("#saveLocalDescription").click(function(){
+		$("#saveLocalDescription").selectRange(0,description.length);
+	});
+	$("#saveDBDescription").click(function(){
+		$("#saveDBDescription").selectRange(0,description.length);
 	});
 }
 
@@ -107,18 +127,23 @@ function saveNoteArrayElements(element, index, array) {
 }
 
 //Creates blob and exports to downloads folder
-function saveLocalFile(name) {
+function saveLocalFile(name, description) {
 	bootbox.hideAll();
+	
+	var data = JSON.parse(m);
+	$.extend(data.diagram,{"description":description});
+	m=JSON.stringify(data,null,' ');
 	
 	var textToWrite = m
 	var blob = new Blob([m], {type: "text/plain;charset=utf-8"});
 	
 	var downloadLink = document.createElement("a");
-	if (name.slice(-3) != "txt"){
-		name += ".txt";
-	}
-	filename = name;
-	downloadLink.download = name;
+	
+
+	filename = name + ".txt";
+	
+	window.description=description;
+	downloadLink.download = filename;
 	downloadLink.innerHTML="Download File";
 	downloadLink.href = window.webkitURL.createObjectURL(blob);
 	downloadLink.click();
@@ -127,19 +152,32 @@ function saveLocalFile(name) {
 }
 
 //Creates blob and exports to database
-function saveDBFile(name) {
+function saveDBFile(name, description) {
 	bootbox.hideAll();
+	
+	var data = JSON.parse(m);
+	$.extend(data.diagram,{"description":description});
+	m=JSON.stringify(data,null,' ');
 	
 	var textToWrite = m
 	var blob = new Blob([m], {type: "text/plain;charset=utf-8"});
 	
-	//add .txt if not already present
-	if (name.slice(-3) != "txt"){
-		name += ".txt";
-	}
-	//Earle: the text to write is stored in the var textToWrite. To save locally, I had to convert this to a blob file
-	// so that is provided as well if needed
-
+	
+	window.description=description;
+	filename = name+'.txt';
+	
+	$.post("postjaml.htm",textToWrite) //NOT SURE IF I SHOULD SEND textToWrite OR blob
+		.success(function(data){
+			console.log("success");
+		})
+		.error(function(jqXHR, textStatus, errorThrown){
+			bootbox.alert({
+				size:'small',
+				message:"<img src='triangle.png' height=15 width=15 style='margin-right:10px'>***Failed to save to database***",
+				callback: function(result){
+				}
+			});
+		});
 	
 
 }
@@ -224,6 +262,7 @@ function loadFile(typeOfLoad,preloadedFile) {
         //Replace			
 		if (typeOfLoad == 0){
 			bootbox.hideAll();
+	        description = n.diagram.description;
 			rows=loadedRows;
 			cols=loadedCols;
 			newProject();
@@ -232,7 +271,12 @@ function loadFile(typeOfLoad,preloadedFile) {
 				addWidth();
 			}
 			var nodeArr = [], arrowArr = [];
-			filename = loadedFilename;
+			
+			if (loadedFilename.slice(-3) == "txt"){
+				loadedFilename =loadedFilename.substring(0, str.length-4);
+			}
+			name = loadedFilename;
+			
 			resetTitleBar();
 			loadEverything(0,"replace");
 			adjustWidth();
@@ -290,7 +334,10 @@ function loadFile(typeOfLoad,preloadedFile) {
 				$("#nodeZone").removeClass('drop-target');
 				$("#nodeZone").css('cursor','auto');
 				
-				filename = filename + "_&_" + loadedFilename
+				if (loadedFilename.slice(-3) == "txt"){
+					loadedFilename =loadedFilename.substring(0, loadedFilename.length-4);
+				}
+				name = name + "_&_" + loadedFilename
 				resetTitleBar();
 				loadEverything(transpose,"append");
 				adjustWidth();
@@ -363,31 +410,31 @@ function adjustWidth () {
 }
 
 function resetTitleBar () {
-	document.getElementById("titleBar").innerHTML = '<h3 class=titleBar>' + filename + '</h3>';
+	document.getElementById("titleBar").innerHTML = '<h3 class=titleBar>' + name + '</h3>';
 }
 
 //Allows editing title by double clicking on the top bar
 $("#titleBar").dblclick(function(event) {
-	if (filename == "Flow_SDE"){
-		filename = "My_Flow_1.txt";
-	}
-	document.getElementById("titleBar").innerHTML = '<div class="center" style="width:20%;margin-left:42%;"><p style = "cursor:pointer;display:inline;margin-right:15px;font-family:Arial Black; line-height:10px;" onclick="resetTitleBar();">X</p><input id="filenameBox" type="text" value='+filename+'>';
-	$("#filenameBox").selectRange(0,filename.length-4);
-	$("#filenameBox").keyup( function(e) {
-		if (e.keyCode == 13){
-			filename = $("#filenameBox").val();
-			if (filename.slice(-3) != "txt"){
-				filename += ".txt";
+	bootbox.confirm({
+		size:'small',
+		backdrop:true,
+		onEscape: function() {},
+		title: "Change file attributes",
+		message:'Filename: <br><input id="saveFileName" type="text" value="'+name+'">'+
+		'<br><br>Description: <br><textarea id="saveDescription" rows="10" placeholder="Add description">'+description+'</textarea>',	
+		callback: function(result){
+			if (result == true){
+				name = $("#saveFileName").val();
+				description = $("#saveDescription").val();
+				resetTitleBar();
 			}
-			document.getElementById("titleBar").innerHTML = '<h3 class=titleBar>' + filename + '</h3>';
 		}
 	});
-	$("#filenameBox").focusout(function(){
-		filename = $("#filenameBox").val();
-		if (filename.slice(-3) != "txt"){
-			filename += ".txt";
-		}
-		document.getElementById("titleBar").innerHTML = '<h3 class=titleBar>' + filename + '</h3>';
+	$("#saveFileName").click(function(){
+		$("#saveFileName").selectRange(0,name.length);
+	});
+	$("#saveDescription").click(function(){
+		$("#saveDescription").selectRange(0,description.length);
 	});
 });	
 //SELECT TEXT RANGE

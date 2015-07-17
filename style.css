@@ -245,7 +245,7 @@ button.little:focus{
 h1.sideBar {
   		text-align: center;
   		display: block;
-		font-size: 2em;
+		font-size: 1.9em;
 		-webkit-margin-before: 0em;
 		-webkit-margin-after: 0em;
 		-webkit-margin-start: 0px;
@@ -263,6 +263,7 @@ h3.titleBar {
 		-webkit-margin-end: 0px;
 		font-weight: bold;
 		font-family:"Courier New",Courier,monospace;
+		cursor:pointer;
 }
 
 img.trash {
