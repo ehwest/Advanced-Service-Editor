@@ -12,7 +12,8 @@ function dragMoveListener (event) {
 	target.style.webkitTransform =
 		target.style.transform =
 			'translate(' + x + 'px, ' + y + 'px)';
-
+	
+	
 	// update the position attributes
 	target.setAttribute('data_x', x);
 	target.setAttribute('data_y', y);

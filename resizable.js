@@ -36,6 +36,10 @@ interact('.resizable')
 	target.setAttribute('data_y', y);
 	}
 	uuid = target.id;
+	if (uuid==""){
+		uuid = target.parentElement.id;
+	}
+	
 	
 	var index = storeXY(arrowArr,uuid);
 	window.currentArrow = arrowArr[index][1];

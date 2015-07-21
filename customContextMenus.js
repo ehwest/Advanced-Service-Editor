@@ -39,7 +39,7 @@ $(function(){
     });
     
     $('.nodeDropzone').on('click', function(e){
-        console.log('clicked', this);
+        //clearSelection();
     })
 });
 
@@ -54,8 +54,8 @@ $(function(){
         // this === item.$node
 
         $('<span>Shift Arrows</span>'
-            + '<button id="shiftDownButton" style="margin-left:5px" onClick="shiftDown(1);">+</button>'
-            + '<button id="shiftUpButton" style="margin-right:10px" onClick="shiftDown(-1);">-</button>')
+            + '<button id="shiftDownButton" style="margin-left:5px" onClick="shiftDown(event,1);">+</button>'
+            + '<button id="shiftUpButton" style="margin-right:10px" onClick="shiftDown(event,-1);">-</button>')
             .appendTo(this);
             
      
@@ -363,7 +363,7 @@ $(function(){
             
             "shift": {type: "label", customName: "Label", 
             	callback: function(){
-            		adjustHeight();
+            		//adjustHeight();
             		return false 
             	},
             	disabled: function(key, opt) {
@@ -373,19 +373,96 @@ $(function(){
             		return startArrowDependants.length==0 && endArrowDependants.length==0;
             	}
             },
-            "makeGroup": {
+            "makeGroupAddChild": {
             	name: "Make child inside", 
             	icon: "edit",
             	callback: function(key, options) {
                     clearSelection();
-    				selection.push(this[0].id);
-    				$("#"+this[0].id).addClass('selected');
-    				lastSelected = this[0].id;
-            		addChildrenToGroup();
+                    var uuid=this[0].id;
+    				selection.push(uuid);
+    				$("#"+uuid).addClass('selected');
+    				lastSelected = uuid;
+    				var dx = addChildrenToGroup(uuid);
+            		shiftByDx(dx,uuid);
+            		if ($("#"+uuid).hasClass("hasNodes")==false){ //first time		
+            			$("#"+uuid).addClass("hasNodes");
+            			$("#"+uuid).addClass("expanded");
+            			document.getElementById(uuid).style.zIndex = 9980;
+            			//document.getElementById(uuid).style.zIndex = document.getElementById(uuid).style.zIndex - 10;
+            			breakArrows();
+            		}
+            		else {
+            			shortenArrows();
+            		}
+            		spawnChild();
+            		calcChildren(uuid);
                 },
         		disabled: function(key, opt) {
-        			//Only allow editing if one node is selected
+        			//Only allow if one node is selected
         			return selection.length >  1
+        		}
+            },
+            "expandGroup": {
+            	name: "Make slot inside", 
+            	icon: "edit",
+            	callback: function(key, options) {
+                    clearSelection();
+                    var uuid=this[0].id;
+    				selection.push(uuid);
+    				$("#"+uuid).addClass('selected');
+    				lastSelected = uuid;
+    				var dx = addChildrenToGroup(uuid);
+            		shiftByDx(dx,uuid);
+            		if ($("#"+uuid).hasClass("hasNodes")==false){ //first time		
+            			$("#"+uuid).addClass("hasNodes");
+            			$("#"+uuid).addClass("expanded");
+            			document.getElementById(uuid).style.zIndex = 9980;
+            			//document.getElementById(uuid).style.zIndex = document.getElementById(uuid).style.zIndex - 10;
+            			breakArrows();
+            		}
+            		else {
+            			shortenArrows();
+            		}
+            		
+            		calcChildren(uuid);
+                },
+        		disabled: function(key, opt) {
+        			//Only allow if one node is selected
+        			return selection.length >  1
+        		}
+            },
+            "makeGroupFromSelected": {
+            	name: "Make group from selected", 
+            	icon: "edit",
+            	callback: function(key, options) {
+            		makeGroup();  		            		
+            		calcChildren(this[0].id);
+                },
+        		disabled: function(key, opt) {
+        			//Only allow if sequential nodes are selected
+        			var selectionX = []
+        			var nonSelectionX = []
+        			for (var i=0; i<nodeArr.length; i++){
+        				var flag = 0;
+        				for (var j=0; j<selection.length; j++){
+        					if (selection[j] == nodeArr[i][1]){
+        						selectionX.push(nodeArr[i][3]);
+        						var flag = 1
+        						break;
+        					}	
+        				}
+        				if (flag == 0){
+        					nonSelectionX.push(nodeArr[i][3])
+        				}
+        			}
+        			var minX = Math.min.apply(null,selectionX);
+        			var maxX = Math.max.apply(null,selectionX);
+        			for (var i=0; i<nonSelectionX.length; i++){
+        				if (nonSelectionX[i]<maxX && nonSelectionX[i]>minX){
+        					return true
+        				}
+        			}
+        			return false
         		}
             },
             "sep3": "---------",
@@ -402,18 +479,17 @@ $(function(){
 });
 
 
-function addChildrenToGroup () {
-	var target= document.getElementById(selection[0]);
+function addChildrenToGroup (uuid) {
+	var target= document.getElementById(uuid);
 	var dx=160;
 	var dy=0
-	if ($("#"+selection[0]).hasClass("hasNodes")==false){ //first time
+	if ($("#"+uuid).hasClass("hasNodes")==false){ //first time
 		var dy=12;
-		var dx=0;
-		
+		var dx=0;	
 	}
-	var height = $("#"+selection[0]).height();
-	var wide = $("#"+selection[0]).width();
-	calcChildren(selection[0]);
+	var height = $("#"+uuid).height();
+	var wide = $("#"+uuid).width();
+	
 	height+=dy;
 	wide+=dx;
 	
@@ -430,10 +506,9 @@ function addChildrenToGroup () {
 	target.setAttribute('data_x', x);
 	target.setAttribute('data_y', y);
 
-
 	
-	$("#"+selection[0]).height(height);
-	$("#"+selection[0]).width(wide);
+	$("#"+uuid).height(height);
+	$("#"+uuid).width(wide);
 	
 	storeXY(nodeArr,target.id);
 	
@@ -449,11 +524,15 @@ function addChildrenToGroup () {
 	target.innerHTML = '<div class="hasNodesHeader">'+text +'</div>'+
 		'<div class="hasNodesBackground" style="height:'+gridHeightCorrected+'px"></div>'+
 		'<div class="verticalLine" style = "margin-left:0px; top:' + nodeHeightCorrected + 'px;height:' + gridHeightCorrected + 'px;"></div>';
+	
+	return dx;
+}
 
-	//SHIFT NODES RIGHT
+function shiftByDx (dx,uuid){
 	shiftMe.length = 0;
+	index=recallArray(nodeArr,uuid);
 	for (var i=0; i<nodeArr.length; i++){
-		if (nodeArr[i][1] == selection[0]){
+		if (nodeArr[i][1] == selection[0] || selection.indexOf(nodeArr[i][1]) != -1){
 			continue;
 		}
 		if (nodeArr[i][3]>nodeArr[index][3] && nodeArr[i][8] != nodeArr[index][1]){
@@ -462,7 +541,6 @@ function addChildrenToGroup () {
 	}
 	for (var i = 0; i<shiftMe.length; i++) {
 		shiftedID = shiftMe[i];
-		//var dx = 160;
 		var dy = 0;
 		var x = parseInt(document.getElementById(shiftedID).getAttribute("data_x")) + dx;
 		var y = parseInt(document.getElementById(shiftedID).getAttribute("data_y")) + dy;
@@ -485,16 +563,6 @@ function addChildrenToGroup () {
 		
 		moveDependants(dx,dy,shiftedID);
 	}
-	
-	if ($("#"+selection[0]).hasClass("hasNodes")==false){ //first time		
-		$("#"+selection[0]).addClass("hasNodes");
-		$("#"+selection[0]).addClass("expanded");
-		document.getElementById(selection[0]).style.zIndex = 9980;
-		//document.getElementById(selection[0]).style.zIndex = document.getElementById(selection[0]).style.zIndex - 10;
-		breakArrows();
-	}
-
-	spawnChild();
 }
 
 function breakArrows () {
@@ -589,6 +657,61 @@ function breakArrows () {
 
 }
 
+function shortenArrows (){
+	getStartArrowDependants(selection[0]);
+	getEndArrowDependants(selection[0]);
+	nodeIndex = recallArray(nodeArr,selection[0]);
+	for (var i=0; i<startArrowDependants.length; i++){
+		var target = document.getElementById(startArrowDependants[i]);
+		var arrowIndex=recallArray(arrowArr,startArrowDependants[i]);
+		if(target.getAttribute('direction')=='right'){		
+			var newWide = parseFloat(target.style.width) - (parseFloat(nodeArr[nodeIndex][6])- parseFloat(arrowArr[arrowIndex][3]))-25;
+			$("#"+target.id).width(newWide);
+			// keep the dragged position in the data-x/data-y attributes
+			x = (parseFloat(target.getAttribute('data_x')) || 0) + 160,
+			y = (parseFloat(target.getAttribute('data_y')) || 0) + 0;
+			
+			// translate the element
+			target.style.webkitTransform =
+				target.style.transform =
+					'translate(' + x + 'px, ' + y + 'px)';
+	
+			// update the position attributes
+			target.setAttribute('data_x', x);
+			target.setAttribute('data_y', y);
+			
+			storeXY(arrowArr,target.id);			
+		}
+		//TEMP YELLOW COLOR 
+		document.getElementById(target.id).style.background = "rgba(255,255,0,.30)"; //Yellow
+	}
+	for (var i=0; i<endArrowDependants.length; i++){
+		var target = document.getElementById(endArrowDependants[i]);
+		var arrowIndex=recallArray(arrowArr,endArrowDependants[i]);
+		if(target.getAttribute('direction')=='left'){		
+			var newWide = parseFloat(target.style.width) - (parseFloat(nodeArr[nodeIndex][6]) - parseFloat(arrowArr[arrowIndex][3]))-25;
+			$("#"+target.id).width(newWide);
+			// keep the dragged position in the data-x/data-y attributes
+			x = (parseFloat(target.getAttribute('data_x')) || 0) + 160,
+			y = (parseFloat(target.getAttribute('data_y')) || 0) + 0;
+			
+			// translate the element
+			target.style.webkitTransform =
+				target.style.transform =
+					'translate(' + x + 'px, ' + y + 'px)';
+	
+			// update the position attributes
+			target.setAttribute('data_x', x);
+			target.setAttribute('data_y', y);
+			
+			storeXY(arrowArr,target.id);			
+		}
+		//TEMP YELLOW COLOR 
+		document.getElementById(target.id).style.background = "rgba(255,255,0,.30)"; //Yellow
+	}
+	//warning();
+}
+
 function spawnChild() {	
 	index = recallArray("node",selection[0]);
 	maxX = calcChildren(selection[0]);
@@ -611,7 +734,8 @@ function spawnChild() {
 				var gridHeight = document.getElementById('grid').clientHeight;
 				var gridHeightCorrected = gridHeight - 90;
 				var id=guid();
-				var lX=maxX+160;
+				var lX=maxX+160; //Shifts left
+				//var lX=rX-100; Shifts Right
 				var lY=22;
 				var wide=100;			
 				var tag = '<div class="nodeDraggable drag-drop drag-1 child can-drop placed verticallyScrollable belongsToNode" '+
@@ -623,15 +747,11 @@ function spawnChild() {
 				
 				var dropOffLocation = document.getElementById("nodeChildrenDroppedOffHere");
 				dropOffLocation.innerHTML += tag;
-				nodeArr.push([document.getElementById(id),id,text,parseInt(lX),parseInt(lY),wide,parseInt(lX)+parseInt(wide),parseInt(lY)]);
+				index = nodeArr.push([document.getElementById(id),id,text,parseInt(lX),parseInt(lY),wide,parseInt(lX)+parseInt(wide),parseInt(lY)]);
 				
 				document.getElementById(id).classList.add('placed');
 				document.getElementById(id).classList.add('verticallyScrollable');
-				calcChildren(selection[0]);
-				if (nodeArr[index][8] == null){
-					nodeArr[index][8] = 0;
-				}
-				nodeArr[index].splice(9,1,childrenIDs);
+				nodeArr[index-1][8] = selection[0];
 				/////////////////////////
 		 	} 		
 		}
@@ -653,15 +773,45 @@ function calcChildren (uuid) {
 			if (nodeArr[i][1]==uuid){
 				continue;
 			}
-			if (nodeArr[i][3]>=nodeArr[index][3] && nodeArr[i][3]<=nodeArr[index][6]) {
+			if (nodeArr[i][3]>=nodeArr[index][3] && nodeArr[i][3]<=nodeArr[index][6] && $("#"+uuid).hasClass('expanded')) {
 				childrenIDs.push(nodeArr[i][1]);
 				if (nodeArr[i][3]>maxX){
 					maxX = nodeArr[i][3];
 				}
 				nodeArr[i][8] = uuid;
-			}			
+			}		
+			if (nodeArr[i][3]>=nodeArr[index][3] && nodeArr[i][3]<=nodeArr[index][6] && $("#"+uuid).hasClass('collapsed') && $('#'+nodeArr[i][1]).css('display')=='none') {
+				childrenIDs.push(nodeArr[i][1]);
+				if (nodeArr[i][3]>maxX){
+					maxX = nodeArr[i][3];
+				}
+				nodeArr[i][8] = uuid;
+			}	
 		}
+		if (nodeArr[index][8] == null){
+			nodeArr[index][8] = 0;
+		}
+		nodeArr[index].splice(9,1,childrenIDs.slice(0));
+		
 		return maxX
+	}
+}
+function calcParent (uuid) {
+	index = recallArray(nodeArr,uuid);
+	var passed=false;
+	for (var i=0;i<nodeArr.length; i++){
+		if(nodeArr[i][1] == uuid){
+			continue;
+		}
+		if ($("#"+nodeArr[i][1]).hasClass('hasNodes')){
+			if (nodeArr[index][3]>=nodeArr[i][3] && nodeArr[index][3]<=nodeArr[i][6] && $("#"+uuid).hasClass('expanded')) {
+				nodeArr[index][8] = nodeArr[i][1];
+				passed = true;
+			}
+		}
+	}
+	if (passed == false){
+		nodeArr[index][8] = 0;
 	}
 }
 function getChildren (uuid) {
@@ -670,7 +820,7 @@ function getChildren (uuid) {
 		index = recallArray(nodeArr,uuid);
 		var maxX = nodeArr[index][3]-160;
 		for (var i=0; i<nodeArr.length; i++){			
-			if (nodeArr[i][8] = uuid){
+			if (nodeArr[i][8] == uuid){
 				childrenIDs.push(nodeArr[i][1]);
 			}			
 		}
@@ -678,9 +828,61 @@ function getChildren (uuid) {
 	}
 }
 
-function shiftDown (dy) {
-	newHeight = $("#contextMenuID").height()-1;
-	$("#contextMenuID").height(newHeight);
+function makeGroup () {
+	bootbox.prompt({
+		closeButton:false,backdrop:true,animate:false,
+		size:'small',
+		title: "Create Group",
+		value:"add text here",
+		placeholder: "add text here",
+		callback: function(result) {
+			if (result != null) {
+				//EXECUTE THIS ON OKAY///
+				for (var k = selection.length-1; k>=0; k--){
+					for (var m = 1; m<=k; m++){
+						if (document.getElementById(selection[m-1]).getAttribute("data_x")>document.getElementById(selection[m]).getAttribute("data_x")) {
+							var swap = selection[m];
+							selection[m] = selection[m-1];
+							selection[m-1] = swap;
+						}		            		
+					}
+				}
+				clone = document.getElementById(selection[0]).cloneNode(true);	
+				var dropOffLocation = document.getElementById("nodeChildrenDroppedOffHere");
+				var clone = dropOffLocation.insertBefore(clone,dropOffLocation.parentNodes);
+				clone.id = guid();
+				$('#'+clone.id).removeClass('selected');
+				nodeArr.push([clone,clone.id]);
+				storeXY(nodeArr,clone.id);
+				storeText (nodeArr,clone.id,result)
+				for (var i=0; i<selection.length; i++){
+					addChildrenToGroup(clone.id);
+					if ($("#"+clone.id).hasClass("hasNodes")==false){ //first time		
+            			$("#"+clone.id).addClass("hasNodes");
+            			$("#"+clone.id).addClass("expanded");
+            			document.getElementById(clone.id).style.zIndex = 9980;
+            			//document.getElementById(clone.id).style.zIndex = document.getElementById(uuid).style.zIndex - 10;
+					}
+				}
+				clearSelection();
+				/////////////////////////
+		 	} 		
+		}
+	});
+	$("#box").autocomplete({
+		source: nodeTags,
+		autoFocus: true,
+		delay: 0
+	});
+}
+
+
+function shiftDown (event,dy) {
+	target = event.target.offsetParent.parentElement
+	var wide = parseInt(target.style.width);
+	//newHeight = $("#contextMenuID").height()-1;
+	//$("#contextMenuID").height(newHeight);
+	target.style.width = parseInt(wide-1) + 'px';
 	var allDependants = [];
 	for (var i = 0; i<selection.length; i++){
 		getStartArrowDependants(selection[i]);

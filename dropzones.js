@@ -110,7 +110,7 @@ function isOverlapped (uuid) {
 	calcChildren(nodeArr[index][1]);
 	var x = parseInt(document.getElementById(uuid).getAttribute("data_x"));
 	for (var i = 0; i<nodeArr.length; i++) {		
-		if(uuid == nodeArr[i][1] || selection.indexOf(nodeArr[i][1]) != -1 || nodeArr[index][8] == nodeArr[i][1] || childrenIDs.indexOf(nodeArr[i][1])!=-1){
+		if(uuid == nodeArr[i][1] || selection.indexOf(nodeArr[i][1]) != -1 || nodeArr[index][8] == nodeArr[i][1] || childrenIDs.indexOf(nodeArr[i][1])!=-1 || $('#'+nodeArr[i][1]).css('display')=='none'){
 			continue;
 		}
 		if (nodeArr[i][3] == x) {
@@ -126,14 +126,15 @@ function shiftRight (target, dx) {
 	document.getElementById(target.id).style.background = "#29e"; //remove yellow
 	var x = parseInt(document.getElementById(target.id).getAttribute("data_x"));
 	shiftMe.length = 0;
+	index=recallArray(nodeArr,target.id);
 	for (var i = 0; i<nodeArr.length; i++) {
-		if(target.id == nodeArr[i][1] || selection.indexOf(nodeArr[i][1]) != -1){
+		if(target.id == nodeArr[i][1] || selection.indexOf(nodeArr[i][1]) != -1 || nodeArr[i][8] == nodeArr[index][1] || $('#'+nodeArr[i][1]).css('display')=='none'){
 			continue;
 		}
 		if (nodeArr[i][3] == x) { //Found an overlap		
 			shiftMe.push(nodeArr[i][1]);
 			for (var j = 0; j<nodeArr.length; j++) {
-				if (nodeArr[j][3] > nodeArr[i][3]  && selection.indexOf(nodeArr[j][1]) == -1) { //found node to the right of overlap
+				if (nodeArr[j][3] > nodeArr[i][3]  && selection.indexOf(nodeArr[j][1]) == -1 && $('#'+nodeArr[i][1]).css('display')!='none') { //found node to the right of overlap
 					shiftMe.push(nodeArr[j][1]);
 				}
 			}

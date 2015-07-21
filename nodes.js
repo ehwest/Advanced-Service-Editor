@@ -9,32 +9,43 @@ var lastSelected = null;
 interact('.nodeDraggable')	
 	.on('tap',function (event){
 		if (event.target.className=='hasNodesHeader' && event.button == 0){
+			clearSelection();
 			var mainNode = event.target.parentNode
 			var index=recallArray(nodeArr,mainNode.id);
+			calcChildren(mainNode.id);
 			if ($("#"+mainNode.id).hasClass("expanded")){
 				var children = nodeArr[index][9];
 				for (var i=0; i<children.length;i++){
 					$("#"+children[i]).css('display','none');
 					//Collapse	
-					//var x = nodeArr[index][3];
-					//var y = document.getElementById(children[i]).getAttribute('data_y');
-					//document.getElementById(children[i]).style.webkitTransform = document.getElementById(children[i]).style.transform =
-					//	'translate(' + x + 'px,' + y + 'px)';					
+					var x = nodeArr[index][3];
+					var y = document.getElementById(children[i]).getAttribute('data_y');
+					document.getElementById(children[i]).style.webkitTransform = document.getElementById(children[i]).style.transform =
+						'translate(' + x + 'px,' + y + 'px)';
 				}
 				$("#"+mainNode.id).removeClass("expanded");
 				$("#"+mainNode.id).addClass("collapsed");
-				//$("#"+mainNode.id).width(160);
-					
+				$("#"+mainNode.id).width(100);
+				shiftByDx(-160*(children.length-1),mainNode.id);
+				//storeXY(nodeArr,mainNode.id);	
 				
 			}
 			else if ($("#"+mainNode.id).hasClass("collapsed")){
+				clearSelection();
 				var children = nodeArr[index][9];
+				shiftByDx(160*(children.length-1),mainNode.id);
 				for (var i=0; i<children.length;i++){
 					$("#"+children[i]).css('display','inline-block');
 					//Restore
+					var x = document.getElementById(children[i]).getAttribute('data_x');
+					var y = document.getElementById(children[i]).getAttribute('data_y');
+					document.getElementById(children[i]).style.webkitTransform = document.getElementById(children[i]).style.transform =
+						'translate(' + x + 'px,' + y + 'px)';	
 				}
 				$("#"+mainNode.id).addClass("expanded");
 				$("#"+mainNode.id).removeClass("collapsed");
+				$("#"+mainNode.id).width(100+160*(children.length-1));
+				
 			}
 		}
 		if ($("#"+event.target.id).hasClass('placed') && event.ctrlKey == false && event.shiftKey==false && event.button == 0){
@@ -172,10 +183,14 @@ interact('.nodeDraggable')
 				$("#"+event.target.id).addClass('selected');
 				lastSelected = event.target.id;
 			}
-	    	getChildren(event.target.id);
+	    	calcChildren(event.target.id);
 	    	for (var i = 0; i<childrenIDs.length; i++){
-				selection.push(childrenIDs[i]);
+				if(selection.indexOf(childrenIDs[i])==-1){
+					selection.push(childrenIDs[i]);
+				}
 			}
+	    	
+	    	
 			//Bring drag elements to the front
 			for (var i = 0; i<selection.length; i++){
 				document.getElementById(selection[i]).style.zIndex = 9997;
@@ -194,15 +209,13 @@ interact('.nodeDraggable')
 	    onmove: window.dragMoveListener,
 		// call this function on every dragend event
 		onend: function (event) {
-			for (var i = 0; i<childrenIDs.length; i++){
-				selection.pop();
-			}
 			for (var i = 0; i<selection.length; i++){
 				try{
 					document.getElementById(selection[i]).style.zIndex = 9996;
 					if ($("#"+selection[i]).hasClass('hasNodes')){
 						document.getElementById(selection[i]).style.zIndex = document.getElementById(selection[i]).style.zIndex - 10;
 					}
+					calcParent(event.target.id);
 				}
 				catch(err) {
 					continue;
@@ -224,12 +237,10 @@ interact('.nodeDraggable')
 					shiftRight(document.getElementById(selection[i]),160);
 				}
 			}
+			
 		}
 	})
-	.on('dragstart', function (event) {
-		
-
-		
+	.on('dragstart', function (event) {	
 
 	})
 	.on('dragend', function (event) {
@@ -302,11 +313,18 @@ function moveSelection (dx,dy,draggedNodeID) {
 		
 		x += dx;
 		y += dy;
-
-		selectionTarget.style.webkitTransform =
-			selectionTarget.style.transform =
-				'translate(' + x + 'px, ' + y + 'px)';
+		if ($('#'+selection[i]).css('display') != 'none'){
+			selectionTarget.style.webkitTransform =
+				selectionTarget.style.transform =
+					'translate(' + x + 'px, ' + y + 'px)';
+		}
+		else {
+			draggedIndex = recallArray(nodeArr,draggedNodeID);
+			selectionTarget.style.webkitTransform =
+				selectionTarget.style.transform =
+					'translate(' + document.getElementById(nodeArr[draggedIndex][1]).getAttribute('data_x') + 'px, ' + document.getElementById(nodeArr[draggedIndex][1]).getAttribute('data_y') + 'px)';		
 		
+		}
 		selectionTarget.setAttribute('data_x',x);
 		selectionTarget.setAttribute('data_y',y);
 		
