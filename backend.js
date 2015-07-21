@@ -166,11 +166,12 @@ function saveDBFile(name, description) {
 	window.description=description;
 	filename = name+'.txt';
 	
-	$.post("postjaml.htm",textToWrite) //NOT SURE IF I SHOULD SEND textToWrite OR blob
+	$.post("postjaml.htm",{jamlData:textToWrite}) //NOT SURE IF I SHOULD SEND textToWrite OR blob
 		.success(function(data){
 			console.log("success");
 		})
 		.error(function(jqXHR, textStatus, errorThrown){
+			//console.log(textToWrite);
 			bootbox.alert({
 				size:'small',
 				message:"<img src='triangle.png' height=15 width=15 style='margin-right:10px'>***Failed to save to database***",
